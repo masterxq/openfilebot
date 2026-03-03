@@ -1,2 +1,2 @@
 #!/bin/sh
-rm -f /usr/bin/filebot
+rm -f /usr/bin/openfilebot

@@ -1,9 +1,9 @@
 [Desktop Entry]
 Name=Subtitles
-Tooltip=Fetch subtitles with FileBot
+Tooltip=Fetch subtitles with openfilebot
 Profiles=Media;
 
 [X-Action-Profile Media]
 Name=Subtitles
 MimeTypes=@{deb.application.mimetype}
-Exec=filebot --mode Subtitles %F
+Exec=openfilebot --mode Subtitles %F

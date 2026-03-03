@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Import to Media Library
-Tooltip=Import to Media Library with FileBot
+Tooltip=Import to Media Library with openfilebot
 Profiles=Media;
 
 [X-Action-Profile Media]

@@ -3,8 +3,8 @@ Type=Application
 Name=@{application.name}
 Comment=@{package.synopsis}
 MimeType=@{deb.application.mimetype}
-Exec=filebot %F
-Icon=filebot
+Exec=openfilebot %F
+Icon=openfilebot
 Categories=@{deb.application.categories}
 Actions=Rename;Subtitles;Checksum;
 StartupNotify=true
@@ -13,15 +13,15 @@ X-Ubuntu-Gettext-Domain=@{package.name}
 
 [Desktop Action Rename]
 Name=Rename
-Exec=filebot --mode Rename %F
+Exec=openfilebot --mode Rename %F
 OnlyShowIn=Unity;
 
 [Desktop Action Subtitles]
 Name=Subtitles
-Exec=filebot --mode Subtitles %F
+Exec=openfilebot --mode Subtitles %F
 OnlyShowIn=Unity;
 
 [Desktop Action Checksum]
 Name=Checksum
-Exec=filebot --mode SFV %F
+Exec=openfilebot --mode SFV %F
 OnlyShowIn=Unity;
