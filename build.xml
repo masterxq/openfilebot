@@ -8,6 +8,9 @@
 	<property name="dir.lib" location="${basedir}/lib" />
 	<property name="dir.website" location="${basedir}/website" />
 	<property name="dir.installer" location="${basedir}/installer" />
+	<property name="dir.test" location="${basedir}/test" />
+	<property name="dir.test.build" location="${dir.build}/test" />
+	<property name="dir.test.report" location="${dir.dist}/test-reports" />
 
 	<!-- import property files -->
 	<property file="${basedir}/profile.properties" />
@@ -194,37 +197,37 @@
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/javafx-base.jar">
 				<include name="javafx/**" />
-				<include name="com/sun/javafx/**" />
+				<include name="com/sun/**" />
 				<exclude name="module-info.class" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/javafx-controls.jar">
 				<include name="javafx/**" />
-				<include name="com/sun/javafx/**" />
+				<include name="com/sun/**" />
 				<exclude name="module-info.class" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/javafx-fxml.jar">
 				<include name="javafx/**" />
-				<include name="com/sun/javafx/**" />
+				<include name="com/sun/**" />
 				<exclude name="module-info.class" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/javafx-graphics.jar">
 				<include name="javafx/**" />
-				<include name="com/sun/javafx/**" />
+				<include name="com/sun/**" />
 				<exclude name="module-info.class" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/javafx-media.jar">
 				<include name="javafx/**" />
-				<include name="com/sun/javafx/**" />
+				<include name="com/sun/**" />
 				<exclude name="module-info.class" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/javafx-swing.jar">
 				<include name="javafx/**" />
-				<include name="com/sun/javafx/**" />
+				<include name="com/sun/**" />
 				<exclude name="module-info.class" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/javafx-web.jar">
 				<include name="javafx/**" />
-				<include name="com/sun/javafx/**" />
+				<include name="com/sun/**" />
 				<include name="com/sun/webkit/**" />
 				<include name="netscape/javascript/**" />
 				<exclude name="module-info.class" />
@@ -282,6 +285,9 @@
 			<!-- include extra libraries -->
 			<zipfileset src="${dir.dist}/lib/guava.jar">
 				<include name="com/google/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/failureaccess.jar">
+				<include name="com/google/common/util/concurrent/internal/**" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/streamex.jar">
 				<include name="one/util/streamex/**" />
@@ -895,6 +901,7 @@
 				<include name="args4j.jar" />
 				<include name="json-io.jar" />
 				<include name="guava.jar" />
+				<include name="failureaccess.jar" />
 			</fileset>
 			<fileset dir="${dir.lib}/jars">
 				<include name="xmlrpc.jar" />
@@ -923,6 +930,42 @@
 				<exclude name="**/*.properties" />
 			</fileset>
 		</copy>
+	</target>
+
+
+	<target name="test-compile" depends="build" description="Compile test sources">
+		<mkdir dir="${dir.test.build}" />
+
+		<javac srcdir="${dir.test}" destdir="${dir.test.build}" release="${jvm.version}" encoding="utf-8" debug="yes" includeAntRuntime="no">
+			<classpath>
+				<pathelement location="${dir.build}" />
+				<fileset dir="${dir.dist}/lib" includes="*.jar" />
+				<fileset dir="${dir.lib}/ivy/jar" includes="junit.jar, hamcrest-core.jar, hamcrest-library.jar" />
+			</classpath>
+		</javac>
+	</target>
+
+
+	<target name="test" depends="test-compile" description="Run test suite (may fail while work in progress)">
+		<mkdir dir="${dir.test.report}" />
+
+		<junit printsummary="withOutAndErr" showoutput="yes" fork="yes" forkmode="once" haltonfailure="no" haltonerror="no">
+			<classpath>
+				<pathelement location="${dir.build}" />
+				<pathelement location="${dir.test.build}" />
+				<fileset dir="${dir.dist}/lib" includes="*.jar" />
+				<fileset dir="${dir.lib}/ivy/jar" includes="junit.jar, hamcrest-core.jar, hamcrest-library.jar" />
+			</classpath>
+
+			<formatter type="plain" usefile="true" />
+			<formatter type="xml" />
+
+			<batchtest todir="${dir.test.report}">
+				<fileset dir="${dir.test.build}" includes="**/*Test.class, **/*Tests.class, **/*TestSuite.class" />
+			</batchtest>
+		</junit>
+
+		<echo>Test execution finished. See reports in ${dir.test.report}</echo>
 	</target>
 
 
