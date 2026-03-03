@@ -26,8 +26,7 @@ public class DefaultThreadFactory implements ThreadFactory {
 
 
 	public DefaultThreadFactory(String groupName, int priority, boolean daemon) {
-		SecurityManager sm = System.getSecurityManager();
-		ThreadGroup parentGroup = (sm != null) ? sm.getThreadGroup() : Thread.currentThread().getThreadGroup();
+		ThreadGroup parentGroup = Thread.currentThread().getThreadGroup();
 
 		this.group = new ThreadGroup(parentGroup, groupName);
 

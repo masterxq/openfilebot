@@ -1,2 +1,2 @@
 #!/bin/sh
-ln -sf /usr/share/filebot/filebot.sh /usr/bin/filebot
+ln -sf /usr/share/openfilebot/openfilebot.sh /usr/bin/openfilebot

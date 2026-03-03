@@ -1,0 +1,39 @@
+name: CI Build
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install Ant and Ivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ant ivy
+
+      - name: Build fatjar and Debian packages
+        run: ant -lib /usr/share/java/ivy.jar clean resolve fatjar deb
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: openfilebot-build-${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            dist/*.jar
+            dist/*.deb
+            dist/*.changes

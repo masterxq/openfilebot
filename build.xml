@@ -192,6 +192,43 @@
 				<include name="impl/org/controlsfx/i18n/**" />
 				<include name="controlsfx.properties" />
 			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/javafx-base.jar">
+				<include name="javafx/**" />
+				<include name="com/sun/javafx/**" />
+				<exclude name="module-info.class" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/javafx-controls.jar">
+				<include name="javafx/**" />
+				<include name="com/sun/javafx/**" />
+				<exclude name="module-info.class" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/javafx-fxml.jar">
+				<include name="javafx/**" />
+				<include name="com/sun/javafx/**" />
+				<exclude name="module-info.class" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/javafx-graphics.jar">
+				<include name="javafx/**" />
+				<include name="com/sun/javafx/**" />
+				<exclude name="module-info.class" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/javafx-media.jar">
+				<include name="javafx/**" />
+				<include name="com/sun/javafx/**" />
+				<exclude name="module-info.class" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/javafx-swing.jar">
+				<include name="javafx/**" />
+				<include name="com/sun/javafx/**" />
+				<exclude name="module-info.class" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/javafx-web.jar">
+				<include name="javafx/**" />
+				<include name="com/sun/javafx/**" />
+				<include name="com/sun/webkit/**" />
+				<include name="netscape/javascript/**" />
+				<exclude name="module-info.class" />
+			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/rsyntaxtextarea.jar">
 				<include name="org/fife/**" />
 			</zipfileset>
@@ -283,15 +320,62 @@
 			</zipfileset>
 
 			<!-- include Groovy libraries -->
-			<zipfileset src="${dir.dist}/lib/groovy-all.jar">
+			<zipfileset src="${dir.dist}/lib/groovy.jar">
 				<include name="groovy*/**" />
 				<include name="org/codehaus/groovy/**" />
+				<include name="org/apache/groovy/**" />
 				<include name="META-INF/dgminfo" />
 				<include name="META-INF/services/**" />
 				<include name="META-INF/*.properties" />
 
 				<!-- filebot already includes it's own extension modules -->
 				<exclude name="META-INF/services/org.codehaus.groovy.runtime.ExtensionModule" />
+				<exclude name="META-INF/services/org.apache.groovy.runtime.ExtensionModule" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/groovy-jsr223.jar">
+				<include name="groovy*/**" />
+				<include name="org/codehaus/groovy/**" />
+				<include name="org/apache/groovy/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/groovy-ant.jar">
+				<include name="groovy*/**" />
+				<include name="org/codehaus/groovy/**" />
+				<include name="org/apache/groovy/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/groovy-json.jar">
+				<include name="groovy*/**" />
+				<include name="org/codehaus/groovy/**" />
+				<include name="org/apache/groovy/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/groovy-xml.jar">
+				<include name="groovy*/**" />
+				<include name="org/codehaus/groovy/**" />
+				<include name="org/apache/groovy/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/groovy-datetime.jar">
+				<include name="groovy*/**" />
+				<include name="org/codehaus/groovy/**" />
+				<include name="org/apache/groovy/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/groovy-dateutil.jar">
+				<include name="groovy*/**" />
+				<include name="org/codehaus/groovy/**" />
+				<include name="org/apache/groovy/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/groovy-templates.jar">
+				<include name="groovy*/**" />
+				<include name="org/codehaus/groovy/**" />
+				<include name="org/apache/groovy/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/groovy-nio.jar">
+				<include name="groovy*/**" />
+				<include name="org/codehaus/groovy/**" />
+				<include name="org/apache/groovy/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/groovy-swing.jar">
+				<include name="groovy*/**" />
+				<include name="org/codehaus/groovy/**" />
+				<include name="org/apache/groovy/**" />
 			</zipfileset>
 
 			<!-- Ivy for @Grapes automatic dependency management -->
@@ -326,7 +410,7 @@
 			<zipfileset src="${dir.dist}/lib/jsch.jar">
 				<include name="com/jcraft/jsch/**" />
 			</zipfileset>
-			<zipfileset src="${dir.dist}/lib/mail.jar">
+			<zipfileset src="${dir.dist}/lib/javax.mail.jar">
 				<include name="javax/mail/**" />
 				<include name="com/sun/mail/**" />
 				<include name="META-INF/*mail*" />
@@ -586,14 +670,14 @@
 		</copy-replace>
 
 		<!-- jdeb does not support tarfileset fullpath attribute (see https://github.com/tcurdt/jdeb/issues/245) -->
-		<copy file="${path.fatjar}" tofile="${dir.staging}/FileBot.jar" />
+		<copy file="${path.fatjar}" tofile="${dir.staging}/openfilebot.jar" />
 
 		<jdeb destfile="${dir.dist}/${package.name}_${application.version}_${deb.arch}.deb" control="${dir.staging}/control" compression="xz" verbose="true">
-			<tarfileset prefix="/usr/share/filebot" dir="${dir.staging}" includes="*.jar" />
-			<tarfileset prefix="/usr/share/filebot" dir="${dir.staging}" includes="*.sh" filemode="755" />
-			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="fpcalc" filemode="755" />
-			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
-			<tarfileset prefix="/usr/share/icons/hicolor/scalable/apps" dir="${dir.installer}/icons" includes="filebot.svg" />
+			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.staging}" includes="*.jar" />
+			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.staging}" includes="*.sh" filemode="755" />
+			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.lib}/native/linux-${arch}" includes="fpcalc" filemode="755" />
+			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
+			<tarfileset prefix="/usr/share/icons/hicolor/scalable/apps" dir="${dir.installer}/icons" includes="openfilebot.svg" />
 			<tarfileset prefix="/usr/share" dir="${dir.staging}/share" includes="**/*.desktop" />
 		</jdeb>
 	</target>
@@ -695,7 +779,7 @@
 
 	<target name="portable" description="Build portable package" depends="revision">
 		<tar destfile="${dir.dist}/${release}-portable.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
-			<tarfileset file="${path.fatjar}" fullpath="FileBot.jar" />
+			<tarfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
 
@@ -737,7 +821,7 @@
 
 			<scripts dir="${dir.installer}/spk/scripts" filemode="755" />
 			<package dir="${dir.installer}/spk/package" includes="*.sh" filemode="755" />
-			<package file="${path.fatjar}" fullpath="FileBot.jar" />
+			<package file="${path.fatjar}" fullpath="openfilebot.jar" />
 
 			<!-- include native libraries for all supported platforms -->
 			<package prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" includes="*.so" />
@@ -759,6 +843,13 @@
 				<include name="miglayout-swing.jar" />
 				<include name="glazedlists_java16.jar" />
 				<include name="controlsfx.jar" />
+				<include name="javafx-base.jar" />
+				<include name="javafx-controls.jar" />
+				<include name="javafx-fxml.jar" />
+				<include name="javafx-graphics.jar" />
+				<include name="javafx-media.jar" />
+				<include name="javafx-swing.jar" />
+				<include name="javafx-web.jar" />
 				<include name="rsyntaxtextarea.jar" />
 				<include name="lanterna.jar" />
 				<include name="xz.jar" />
@@ -779,7 +870,16 @@
 				<include name="commons-logging.jar" />
 				<include name="slf4j-api.jar" />
 				<include name="slf4j-jdk14.jar" />
-				<include name="groovy-all.jar" />
+				<include name="groovy.jar" />
+				<include name="groovy-jsr223.jar" />
+				<include name="groovy-ant.jar" />
+				<include name="groovy-json.jar" />
+				<include name="groovy-xml.jar" />
+				<include name="groovy-datetime.jar" />
+				<include name="groovy-dateutil.jar" />
+				<include name="groovy-templates.jar" />
+				<include name="groovy-nio.jar" />
+				<include name="groovy-swing.jar" />
 				<include name="ivy.jar" />
 				<include name="jsoup.jar" />
 				<include name="ant.jar" />
@@ -789,7 +889,7 @@
 				<include name="ant-javamail.jar" />
 				<include name="commons-net.jar" />
 				<include name="jsch.jar" />
-				<include name="mail.jar" />
+				<include name="javax.mail.jar" />
 			</fileset>
 			<fileset dir="${dir.lib}/ivy/bundle">
 				<include name="args4j.jar" />
@@ -805,7 +905,7 @@
 		</copy>
 
 		<!-- compile -->
-		<javac srcdir="${dir.source}" destdir="${dir.build}" target="${jvm.version}" source="${jvm.version}" encoding="utf-8" debug="yes" debuglevel="lines,vars,source" includeAntRuntime="no">
+		<javac srcdir="${dir.source}" destdir="${dir.build}" release="${jvm.version}" encoding="utf-8" debug="yes" debuglevel="lines,vars,source" includeAntRuntime="no">
 			<classpath>
 				<fileset dir="${dir.dist}/lib" />
 			</classpath>
@@ -931,7 +1031,7 @@
 
 
 	<target name="deploy-jar" depends="fatjar" description="Build and deploy the latest jar">
-		<xz src="${path.fatjar}" destfile="${dir.release}/FileBot.jar.xz" />
+		<xz src="${path.fatjar}" destfile="${dir.release}/openfilebot.jar.xz" />
 		<gpg-sign>
 			<fileset dir="${dir.release}" includes="*.jar.xz" />
 		</gpg-sign>

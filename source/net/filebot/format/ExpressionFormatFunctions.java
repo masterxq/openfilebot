@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 import com.sun.jna.Platform;
 
 import groovy.lang.Closure;
-import groovy.util.XmlSlurper;
+import groovy.xml.XmlSlurper;
 import net.filebot.ApplicationFolder;
 import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.util.FileUtilities;

@@ -12,12 +12,6 @@ import java.awt.Dialog.ModalityType;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.security.CodeSource;
-import java.security.Permission;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.security.Policy;
-import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
@@ -292,34 +286,10 @@ public class Main {
 	}
 
 	/**
-	 * Initialize default SecurityManager and grant all permissions via security policy. Initialization is required in order to run {@link ExpressionFormat} in a secure sandbox.
+	 * SecurityManager was deprecated for removal and is no longer available on modern JDK versions.
 	 */
 	private static void initializeSecurityManager() {
-		try {
-			// initialize security policy used by the default security manager
-			// because default the security policy is very restrictive (e.g. no FilePermission)
-			Policy.setPolicy(new Policy() {
-
-				@Override
-				public boolean implies(ProtectionDomain domain, Permission permission) {
-					// all permissions
-					return true;
-				}
-
-				@Override
-				public PermissionCollection getPermissions(CodeSource codesource) {
-					// VisualVM can't connect if this method does return
-					// a checked immutable PermissionCollection
-					return new Permissions();
-				}
-			});
-
-			// set default security manager
-			System.setSecurityManager(new SecurityManager());
-		} catch (Exception e) {
-			// security manager was probably set via system property
-			debug.log(Level.WARNING, e.getMessage(), e);
-		}
+		debug.fine("Skip SecurityManager initialization");
 	}
 
 	public static void initializeSystemProperties(ArgumentBean args) {

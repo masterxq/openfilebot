@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Menu
+Name=@{application.name}
+Tooltip=Common openfilebot Actions
+Icon=openfilebot
+ItemsList=openfilebot-rename;openfilebot-subtitles;openfilebot-checksum;openfilebot-import;
