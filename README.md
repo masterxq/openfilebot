@@ -1,12 +1,17 @@
-# No, I will not be updating this. go read the license/readme in the original repo, then stop fucking asking.
+# OpenFileBot
+OpenFileBot is a fork of the latest FileBot release with GPLv3 license i could find.
 
+Thanks to the original author, FileBot is a great tool for renaming and organizing media files.
 
-This is a fork to provide up-to-date Windows installers and JARs.  
-The only change to the FileBot code is removing the donate nag on quit.
+This fork will be maintained with low power and the support will be very limited.
+So if you wish good support and a strongly maintained project please use the original FileBot project instead.
 
----
+[FileBot](https://www.filebot.net/)
+
+If you are fine with basic fixes and updates you are on the right place.
+
+I don't want donations, if somebody tells you you need to pay for OpenFileBot, it's a scam. Not do it!
 
 # FileBot
-![Jenkins](https://img.shields.io/jenkins/s/http/5.135.178.184/e95a91fa8beb/FileBot.svg)
-![Github All Releases](https://img.shields.io/github/downloads/Phoenix09/filebot/total.svg)
-![Github Releases](https://img.shields.io/github/downloads/Phoenix09/filebot/latest/total.svg)
+![Github All Releases](https://img.shields.io/github/downloads/masterxq/openfilebot/total.svg)
+![Github Releases](https://img.shields.io/github/downloads/masterxq/openfilebot/latest/total.svg)

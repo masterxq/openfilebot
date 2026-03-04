@@ -8,11 +8,12 @@ import org.tukaani.xz.*
 
 
 def dir_root    = project as File
-def dir_website = dir_root.resolve('website')
-def dir_data    = dir_website.resolve('data')
+def dir_output  = dir_root.resolve('build-data/output')
+def dir_data    = dir_output.resolve('data')
+dir_data.mkdirs()
 
 // sort and check shared regex collections
-def dir_data_master = System.getProperty('net.filebot.data.master', 'https://raw.githubusercontent.com/filebot/data/master')
+def dir_data_master = System.getProperty('net.filebot.data.master', 'https://github.com/masterxq/openfilebot/releases/latest/download')
 
 ['add-series-alias.txt', 
  'query-blacklist.txt', 
@@ -46,7 +47,7 @@ reviews = reviews.sort{ it.date }
 
 def json = new groovy.json.JsonBuilder()
 json.call(reviews as List)
-json.toPrettyString().saveAs(dir_website.resolve('reviews.json'))
+json.toPrettyString().saveAs(dir_output.resolve('reviews.json'))
 log.info "Reviews: " + reviews.size()
 
 

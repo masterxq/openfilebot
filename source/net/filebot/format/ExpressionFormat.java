@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.lang.model.SourceVersion;
 import javax.script.Bindings;
@@ -31,6 +33,8 @@ import groovy.lang.GroovyRuntimeException;
 import groovy.lang.MissingPropertyException;
 
 public class ExpressionFormat extends Format {
+
+	private static final Pattern UNSUPPORTED_CLASS_FILE_MAJOR_VERSION = Pattern.compile("Unsupported class file major version\\s+(\\d+)");
 
 	private final String expression;
 
@@ -252,13 +256,35 @@ public class ExpressionFormat extends Format {
 			return new Variable(expression);
 		}
 
-		CompiledScript scriptlet = scriptletCache.get(expression);
-		if (scriptlet == null) {
-			Compilable engine = (Compilable) getGroovyScriptEngine();
-			scriptlet = engine.compile(expression);
-			scriptletCache.put(expression, scriptlet);
+		try {
+			CompiledScript scriptlet = scriptletCache.get(expression);
+			if (scriptlet == null) {
+				Compilable engine = (Compilable) getGroovyScriptEngine();
+				scriptlet = engine.compile(expression);
+				scriptletCache.put(expression, scriptlet);
+			}
+			return scriptlet;
+		} catch (ScriptException e) {
+			throw normalizeCompilationException(e);
+		} catch (RuntimeException e) {
+			throw normalizeCompilationException(e);
 		}
-		return scriptlet;
+	}
+
+	private static ScriptException normalizeCompilationException(Throwable error) {
+		String message = getRootCauseMessage(error);
+		if (message != null && message.contains("Unsupported class file major version")) {
+			String javaVersion = System.getProperty("java.version", "unknown");
+			Matcher matcher = UNSUPPORTED_CLASS_FILE_MAJOR_VERSION.matcher(message);
+			String major = matcher.find() ? matcher.group(1) : "unknown";
+			return new ScriptException(String.format("Incompatible Java runtime detected (java.version=%s, class file major version=%s). Please run FileBot with Java 21 LTS or Java 25 LTS.", javaVersion, major));
+		}
+
+		if (error instanceof ScriptException) {
+			return (ScriptException) error;
+		}
+
+		return new ScriptException(error instanceof Exception ? (Exception) error : new RuntimeException(error));
 	}
 
 	private static class Variable extends CompiledScript {

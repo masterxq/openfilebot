@@ -24,7 +24,7 @@ cd "$WORKING_DIR"
 # update core application files
 PACKAGE_NAME="FileBot.jar.xz.gpg"
 PACKAGE_FILE="$APP_ROOT/$PACKAGE_NAME"
-PACKAGE_URL="https://get.filebot.net/filebot/latest/$PACKAGE_NAME"
+PACKAGE_URL="https://github.com/masterxq/openfilebot/releases/latest/download/$PACKAGE_NAME"
 
 echo "Update $PACKAGE_FILE"
 HTTP_CODE=`curl -L -o "$PACKAGE_FILE" -z "$PACKAGE_FILE" --retry 5 "$PACKAGE_URL" -w "%{http_code}"`
