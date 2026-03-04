@@ -154,10 +154,6 @@ public final class Settings {
 		return null;
 	}
 
-	public static String getDonateURL() {
-		return getApplicationProperty("donate.url") + "?src=" + getApplicationDeployment();
-	}
-
 	public static String getEmbeddedHelpURL() {
 		// add #hash so we can dynamically adjust the slides for the various platforms via JavaScript
 		return getApplicationProperty("link.app.help") + '#' + getApplicationDeployment();

@@ -6,7 +6,6 @@
 	<property name="dir.build" location="${basedir}/build" />
 	<property name="dir.dist" location="${basedir}/dist" />
 	<property name="dir.lib" location="${basedir}/lib" />
-	<property name="dir.website" location="${basedir}/website" />
 	<property name="dir.installer" location="${basedir}/installer" />
 	<property name="dir.test" location="${basedir}/test" />
 	<property name="dir.test.build" location="${dir.build}/test" />
@@ -975,17 +974,6 @@
 	</target>
 
 
-	<target name="website-docs" depends="revision">
-		<javadoc destdir="${dir.dist}/website/docs" linksource="yes" access="public" classpathref="lib.classpath" encoding="UTF-8" charset="UTF-8" windowtitle="${application.name}" noindex="yes" nohelp="yes" notree="yes" nodeprecated="yes" nonavbar="yes">
-			<fileset dir="${dir.source}" includesfile="${dir.website}/docs/includes.fileset" />
-			<doctitle>${application.name} ${application.version}</doctitle>
-			<bottom>${application.name} ${application.version} (r${revision}) built on ${tstamp.date}</bottom>
-			<link href="http://docs.oracle.com/javase/${jre.version}/docs/api/" />
-			<link href="http://docs.groovy-lang.org/latest/html/api/" />
-		</javadoc>
-	</target>
-
-
 	<target name="revision" depends="init">
 		<exec executable="git" outputproperty="revision" failonerror="true">
 			<arg line="rev-list --count HEAD" />
@@ -1091,77 +1079,18 @@
 		<package-source file="${dir.dist}/syno/index.json">
 			<keyring file="${dir.installer}/gpg/FileBot.pub" />
 			<spk file="${dir.release}/${package.name}-${application.version}-noarch.spk">
-				<info name="link" value="https://downloads.sourceforge.net/project/filebot/filebot/${release}/${package.name}-${application.version}-noarch.spk" />
-				<thumbnail url="https://www.filebot.net/syno/filebot-thumbnail.png" />
-				<snapshot url="https://www.filebot.net/syno/filebot-snapshot.png" />
+				<info name="link" value="https://github.com/masterxq/openfilebot/releases/download/${release}/${package.name}-${application.version}-noarch.spk" />
+				<thumbnail url="https://github.com/masterxq/openfilebot" />
+				<snapshot url="https://github.com/masterxq/openfilebot" />
 			</spk>
-			<source url="https://raw.githubusercontent.com/filebot/filebot-node/master/spksrc.json" />
-			<source url="https://raw.githubusercontent.com/rednoah/java-installer/master/spksrc.json" />
-			<source url="https://raw.githubusercontent.com/rednoah/ant-installer/master/spksrc.json" />
+			<source url="https://github.com/masterxq/openfilebot" />
+			<source url="https://github.com/masterxq/openfilebot" />
+			<source url="https://github.com/masterxq/openfilebot" />
 		</package-source>
 
 		<!-- upload -->
 		<release-deploy todir="${deploy.release}">
 			<fileset dir="${dir.dist}" includes="syno/**" />
-		</release-deploy>
-	</target>
-
-
-	<target name="deploy-website" description="Upload website resources" depends="revision">
-		<!-- copy image resources -->
-		<copy todir="${dir.dist}/website/resources" preservelastmodified="yes" verbose="yes" flatten="true">
-			<fileset dir="${dir.source}/net/filebot/resources">
-				<include name="*.png" />
-			</fileset>
-		</copy>
-
-		<!-- copy static website resources -->
-		<copy todir="${dir.dist}/website" preservelastmodified="yes" verbose="yes">
-			<fileset dir="${dir.website}">
-				<include name=".htaccess" />
-				<include name="*.html" />
-				<include name="*.php" />
-				<include name="*.json" />
-				<include name="*.xml" />
-				<include name="*.css" />
-				<include name="*.js" />
-				<include name="*.png" />
-				<include name="*.ico" />
-				<include name="*.txt" />
-				<include name="syno/**" />
-				<include name="images/**" />
-				<include name="screenshots/**" />
-				<include name="getting-started/**" />
-			</fileset>
-		</copy>
-
-		<!-- copy files and resolve ant variables -->
-		<copy-replace todir="${dir.dist}/website">
-			<fileset dir="${dir.website}">
-				<include name="*.html" />
-				<include name="*.php" />
-			</fileset>
-		</copy-replace>
-
-		<!-- upload -->
-		<release-deploy todir="${deploy.website}">
-			<fileset dir="${dir.dist}/website">
-				<modified>
-					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
-				</modified>
-			</fileset>
-		</release-deploy>
-	</target>
-
-
-	<target name="upload-data" description="Upload data files" depends="init">
-		<release-deploy todir="${deploy.website}">
-			<fileset dir="${dir.website}">
-				<include name="data/*.xz" />
-				<modified>
-					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
-				</modified>
-			</fileset>
 		</release-deploy>
 	</target>
 

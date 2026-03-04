@@ -8,7 +8,6 @@ import static net.filebot.util.StringUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -21,48 +20,6 @@ import net.filebot.Settings;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 
 public enum SupportDialog {
-
-	Donation {
-
-		@Override
-		String getMessage(int renameCount) {
-			return String.format("<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken thousands of hours to develop this application. If you enjoy using it,<br>please consider making a donation. It'll help make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", renameCount);
-		}
-
-		@Override
-		String[] getActions(boolean first) {
-			if (first)
-				return new String[] { "Donate! :)", "Nope! Maybe next time." };
-			else
-				return new String[] { "Donate again! :)", "Nope! Not this time." };
-		}
-
-		@Override
-		Icon getIcon() {
-			return ResourceManager.getIcon("message.donate");
-		}
-
-		@Override
-		String getTitle() {
-			return "Please Donate";
-		}
-
-		@Override
-		public boolean feelingLucky(int sessionRenameCount, int totalRenameCount, int currentRevision, int lastSupportRevision, int supportRevisionCount) {
-			// annoy users that chose not to purchase FileBot on the Store
-			if (sessionRenameCount > 0 && Stream.of("Mac OS X", "Windows 10").anyMatch(Predicate.isEqual(System.getProperty("os.name")))) {
-				return true;
-			}
-
-			return super.feelingLucky(sessionRenameCount, totalRenameCount, currentRevision, lastSupportRevision, supportRevisionCount);
-		}
-
-		@Override
-		String getURI() {
-			return getDonateURL();
-		}
-
-	},
 
 	AppStoreReview {
 
@@ -157,6 +114,10 @@ public enum SupportDialog {
 
 	public static void maybeShow() {
 		try {
+			if (!isAppStore()) {
+				return;
+			}
+
 			PreferencesEntry<String> persistentSupportRevision = Settings.forPackage(SupportDialog.class).entry("support.revision");
 			List<Integer> supportRevision = matchIntegers(persistentSupportRevision.getValue());
 
@@ -166,8 +127,8 @@ public enum SupportDialog {
 			int sessionRenameCount = HistorySpooler.getInstance().getSessionHistoryTotalSize();
 			int totalRenameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
 
-			// show donation / review reminders to power users
-			SupportDialog dialog = isAppStore() ? AppStoreReview : Donation;
+			// show review reminders to power users
+			SupportDialog dialog = AppStoreReview;
 
 			if (dialog.feelingLucky(sessionRenameCount, totalRenameCount, currentRevision, lastSupportRevision, supportRevision.size())) {
 				if (dialog.show(totalRenameCount, supportRevision.isEmpty())) {

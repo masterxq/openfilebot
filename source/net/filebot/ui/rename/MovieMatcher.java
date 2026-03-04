@@ -225,12 +225,16 @@ class MovieMatcher implements AutoCompleteMatcher {
 		synchronized (selectionMemory) {
 			if (!strict && (!autodetect || options.isEmpty()) && !(autodetect && autoSelectionMode.size() > 0)) {
 				String suggestion = options.isEmpty() ? stripReleaseInfo(getName(movieFile)) : options.iterator().next().getName();
+				suggestion = normalizeDialogSuggestion(suggestion);
 				String input = inputMemory.get(suggestion);
 
 				if (input == null || suggestion == null || suggestion.isEmpty()) {
 					File movieFolder = guessMovieFolder(movieFile);
-					synchronized (parent) {
-						input = showInputDialog(getQueryInputMessage("Please identify the following files:", "Enter movie name:", movieFile), suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.join(" / ", movieFolder.getName(), movieFile.getName()), parent);
+					String fallback = normalizeDialogSuggestion(getName(movieFile));
+					input = showInputDialog(getQueryInputMessage("Please identify the following files:", "Enter movie name:", movieFile), suggestion != null && suggestion.length() > 0 ? suggestion : fallback, movieFolder == null ? movieFile.getName() : String.join(" / ", movieFolder.getName(), movieFile.getName()), parent);
+
+					if (input == null) {
+						throw new CancellationException();
 					}
 					inputMemory.put(suggestion, input);
 				}
@@ -245,6 +249,14 @@ class MovieMatcher implements AutoCompleteMatcher {
 		}
 
 		return options.isEmpty() ? null : selectMovie(movieFile, strict, null, options, parent);
+	}
+
+	private String normalizeDialogSuggestion(String suggestion) {
+		if (suggestion == null) {
+			return null;
+		}
+
+		return suggestion.replace('.', ' ').replaceAll("\\s+", " ").trim();
 	}
 
 	protected String getQueryInputMessage(String header, String message, File file) throws Exception {
