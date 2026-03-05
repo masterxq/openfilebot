@@ -5,7 +5,7 @@
    viewBox="0 0 94.191661 94.191673"
    version="1.1"
    id="svg1"
-   sodipodi:docname="openfilebot_try_svg2.svg"
+   sodipodi:docname="openfilebot-round.svg"
    inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -70,14 +70,11 @@
          id="stop5" />
     </linearGradient>
   </defs>
-  <rect
+  <circle
      id="background"
-     x="0.75"
-     y="0.75"
-     width="92.691661"
-     height="92.691673"
-     rx="11.5"
-     ry="11.5"
+     cx="47.095831"
+     cy="47.095837"
+     r="46.345831"
      fill="url(#bgGradient)"
      stroke="url(#edgeGradient)"
      stroke-width="1.5" />
