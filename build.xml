@@ -16,12 +16,8 @@
 	<property file="${dir.installer}/ant/ant.properties" />
 	<property file="${dir.source}/net/filebot/Settings.properties" />
 
-	<property name="release" value="${application.name}_${application.version}" />
-
 	<!-- define output paths -->
 	<property name="dir.cache" location="${basedir}/cache" />
-	<property name="dir.release" location="${basedir}/release/${release}" />
-	<property name="path.fatjar" location="${dir.dist}/${release}.jar" />
 
 
 	<!-- timestamp variables -->
@@ -39,6 +35,7 @@
 			<copy todir="@{todir}" encoding="utf-8" overwrite="yes" verbose="yes">
 				<filesets />
 				<filterset begintoken="@{" endtoken="}">
+					<filter token="application.version" value="${build.version}" />
 					<propertyset>
 						<propertyref builtin="all" />
 					</propertyset>
@@ -222,13 +219,6 @@
 			<zipfileset src="${dir.dist}/lib/javafx-swing.jar">
 				<include name="javafx/**" />
 				<include name="com/sun/**" />
-				<exclude name="module-info.class" />
-			</zipfileset>
-			<zipfileset src="${dir.dist}/lib/javafx-web.jar">
-				<include name="javafx/**" />
-				<include name="com/sun/**" />
-				<include name="com/sun/webkit/**" />
-				<include name="netscape/javascript/**" />
 				<exclude name="module-info.class" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/rsyntaxtextarea.jar">
@@ -425,7 +415,7 @@
 
 
 	<target name="appbundle" description="Build Mac application bundle" depends="revision">
-		<bundleapp outputdirectory="${dir.dist}" executablename="filebot.launcher" hidedockicon="true" minimumsystemversion="${mac.version}" jvmrequired="${jvm.version}" name="${application.name}" displayname="${application.name} ${application.version}" version="${revision}" shortversion="${application.version}" identifier="${package.identifier}.Command" mainclassname="${main.class}" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} ${package.developer}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="false">
+		<bundleapp outputdirectory="${dir.dist}" executablename="filebot.launcher" hidedockicon="true" minimumsystemversion="${mac.version}" jvmrequired="${jvm.version}" name="${application.name}" displayname="${application.name} ${build.version}" version="${revision}" shortversion="${build.version}" identifier="${package.identifier}.Command" mainclassname="${main.class}" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} ${package.developer}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="false">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<librarypath dir="${dir.installer}/appbundle/MacOS" />
@@ -496,7 +486,7 @@
 
 	<target name="appbundle-maspkg" depends="revision">
 		<property name="path.app" location="${dir.dist}/${application.name}.app" />
-		<property name="path.pkg" location="${dir.dist}/${application.name}_${application.version}_r${revision}.pkg" />
+		<property name="path.pkg" location="${dir.dist}/${application.name}_${build.version}_r${revision}.pkg" />
 
 		<property name="path.app.jre" location="${path.app}/Contents/PlugIns/jre-${jre.version}.jre" />
 		<property name="jre.path" location="${dir.cache}/jre-${jre.version}.jre/Contents/Home" />
@@ -518,7 +508,7 @@
 		<replace file="${jre.path}/../Info.plist" token="com.oracle.java.${jre.version}.jre" value="${application.identifier}.jre" encoding="UTF-8" summary="true" />
 
 
-		<bundleapp jvmrequired="${jvm.version}" minimumsystemversion="${mac.version}" outputdirectory="${dir.dist}" executablename="${application.executable}" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${application.version}" identifier="${application.identifier}" mainclassname="${main.class}" icon="${application.icon}" copyright="${tstamp.year} ${package.company}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
+		<bundleapp jvmrequired="${jvm.version}" minimumsystemversion="${mac.version}" outputdirectory="${dir.dist}" executablename="${application.executable}" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${build.version}" identifier="${application.identifier}" mainclassname="${main.class}" icon="${application.icon}" copyright="${tstamp.year} ${package.company}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath dir="${dir.dist}/lib" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 
@@ -677,7 +667,7 @@
 		<!-- jdeb does not support tarfileset fullpath attribute (see https://github.com/tcurdt/jdeb/issues/245) -->
 		<copy file="${path.fatjar}" tofile="${dir.staging}/openfilebot.jar" />
 
-		<jdeb destfile="${dir.dist}/${package.name}_${application.version}_${deb.arch}.deb" control="${dir.staging}/control" compression="xz" verbose="true">
+		<jdeb destfile="${dir.dist}/${package.name}_${build.version}_${deb.arch}.deb" control="${dir.staging}/control" compression="xz" verbose="true">
 			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.staging}" includes="*.jar" />
 			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.staging}" includes="*.sh" filemode="755" />
 			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.lib}/native/linux-${arch}" includes="fpcalc" filemode="755" />
@@ -801,7 +791,7 @@
 
 
 	<target name="spk" description="Build Synology NAS package" depends="revision">
-		<spk destdir="${dir.dist}" name="${package.name}" version="${application.version}" arch="noarch" compression="xz">
+		<spk destdir="${dir.dist}" name="${package.name}" version="${build.version}" arch="noarch" compression="xz">
 			<info name="displayname" value="${application.name}" />
 			<info name="description" value="${package.description}" />
 			<info name="maintainer" value="${package.project}" />
@@ -854,7 +844,6 @@
 				<include name="javafx-graphics.jar" />
 				<include name="javafx-media.jar" />
 				<include name="javafx-swing.jar" />
-				<include name="javafx-web.jar" />
 				<include name="rsyntaxtextarea.jar" />
 				<include name="lanterna.jar" />
 				<include name="xz.jar" />
@@ -983,10 +972,29 @@
 
 
 	<target name="init">
+		<exec executable="git" outputproperty="git.latest.tag" failonerror="false">
+			<arg line="describe --tags --abbrev=0" />
+		</exec>
+
+		<condition property="build.version" value="${git.latest.tag}" else="${application.version}">
+			<and>
+				<isset property="git.latest.tag" />
+				<not>
+					<equals arg1="${git.latest.tag}" arg2="" trim="true" />
+				</not>
+			</and>
+		</condition>
+
+		<property name="release" value="${application.name}_${build.version}" />
+		<property name="dir.release" location="${basedir}/release/${release}" />
+		<property name="path.fatjar" location="${dir.dist}/${release}.jar" />
+
 		<mkdir dir="${dir.build}" />
 		<mkdir dir="${dir.dist}" />
 		<mkdir dir="${dir.release}" />
 		<mkdir dir="${dir.cache}" />
+
+		<echo>Build version: ${build.version}</echo>
 
 		<path id="lib.classpath">
 			<fileset dir="${dir.lib}" includes="**/*.jar" excludes="**/*-jdk14.jar" />
@@ -1034,7 +1042,7 @@
 
 
 		<!-- include source tarball -->
-		<tar destfile="${dir.release}/${package.name}-${application.version}-src.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
+		<tar destfile="${dir.release}/${package.name}-${build.version}-src.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
 			<tarfileset dir="${dir.source}" />
 		</tar>
 	</target>
@@ -1078,8 +1086,8 @@
 		<!-- merge all filebot related packages into a single package source file -->
 		<package-source file="${dir.dist}/syno/index.json">
 			<keyring file="${dir.installer}/gpg/FileBot.pub" />
-			<spk file="${dir.release}/${package.name}-${application.version}-noarch.spk">
-				<info name="link" value="https://github.com/masterxq/openfilebot/releases/download/${release}/${package.name}-${application.version}-noarch.spk" />
+			<spk file="${dir.release}/${package.name}-${build.version}-noarch.spk">
+				<info name="link" value="https://github.com/masterxq/openfilebot/releases/download/${release}/${package.name}-${build.version}-noarch.spk" />
 				<thumbnail url="https://github.com/masterxq/openfilebot" />
 				<snapshot url="https://github.com/masterxq/openfilebot" />
 			</spk>

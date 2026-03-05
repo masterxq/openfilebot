@@ -154,11 +154,6 @@ public final class Settings {
 		return null;
 	}
 
-	public static String getEmbeddedHelpURL() {
-		// add #hash so we can dynamically adjust the slides for the various platforms via JavaScript
-		return getApplicationProperty("link.app.help") + '#' + getApplicationDeployment();
-	}
-
 	public static String getApplicationIdentifier() {
 		return String.format("%s %s (r%d)", getApplicationName(), getApplicationVersion(), getApplicationRevisionNumber());
 	}

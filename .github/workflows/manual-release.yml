@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Git tag to build (example: v0.9.0)"
+        description: "Git tag to build (example: 0.9.1)"
         required: true
         type: string
       publish_release:
@@ -37,13 +37,26 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      - name: Derive release version from tag
+        run: |
+          TAG_VERSION="${{ inputs.tag }}"
+          TAG_VERSION="${TAG_VERSION#v}"
+
+          if ! echo "$TAG_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$'; then
+            echo "Invalid tag/version '${{ inputs.tag }}' (normalized: $TAG_VERSION). Expected e.g. 0.9.1 or v0.9.1"
+            exit 1
+          fi
+
+          echo "RELEASE_VERSION=$TAG_VERSION" >> "$GITHUB_ENV"
+          echo "Release version: $TAG_VERSION"
+
       - name: Install Ant and Ivy
         run: |
           sudo apt-get update
           sudo apt-get install -y ant ivy gnupg
 
       - name: Build fatjar and Debian packages
-        run: ant -lib /usr/share/java/ivy.jar clean resolve fatjar deb
+        run: ant -lib /usr/share/java/ivy.jar -Dapplication.version="${RELEASE_VERSION}" clean resolve fatjar deb
 
       - name: Validate signing secrets
         env:
@@ -94,3 +107,70 @@ jobs:
             dist/*.deb
             dist/*.changes
             dist/*.asc
+
+  windows-installer-build:
+    runs-on: windows-latest
+    needs: release-build
+
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Derive release version from tag
+        shell: pwsh
+        run: |
+          $tagVersion = '${{ inputs.tag }}'
+          $tagVersion = $tagVersion.TrimStart('v')
+
+          if ($tagVersion -notmatch '^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$') {
+            throw "Invalid tag/version '${{ inputs.tag }}' (normalized: $tagVersion). Expected e.g. 0.9.1 or v0.9.1"
+          }
+
+          "RELEASE_VERSION=$tagVersion" >> $env:GITHUB_ENV
+          Write-Host "Release version: $tagVersion"
+
+      - name: Install build tools (Ant + WiX)
+        shell: pwsh
+        run: |
+          choco install ant wixtoolset --no-progress -y
+
+      - name: Build fatjar and MSI installers
+        shell: pwsh
+        run: |
+          $wixPaths = @(
+            "C:\Program Files (x86)\WiX Toolset v3.14\bin",
+            "C:\Program Files (x86)\WiX Toolset v3.11\bin"
+          )
+          foreach ($p in $wixPaths) {
+            if (Test-Path $p) {
+              "$p" >> $env:GITHUB_PATH
+            }
+          }
+
+          Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/org/apache/ivy/ivy/2.5.2/ivy-2.5.2.jar" -OutFile "ivy.jar"
+          ant -lib ivy.jar -Dapplication.version="$env:RELEASE_VERSION" clean resolve fatjar msi
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: openfilebot-windows-installer-${{ inputs.tag }}
+          if-no-files-found: error
+          path: |
+            dist/*.msi
+
+      - name: Publish MSI to GitHub Release
+        if: inputs.publish_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          prerelease: ${{ inputs.prerelease }}
+          files: |
+            dist/*.msi
