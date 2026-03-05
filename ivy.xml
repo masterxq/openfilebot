@@ -13,30 +13,30 @@
 		<dependency rev="4.0.26" org="org.apache.groovy" name="groovy-templates" />
 		<dependency rev="4.0.26" org="org.apache.groovy" name="groovy-nio" />
 		<dependency rev="4.0.26" org="org.apache.groovy" name="groovy-swing" />
-		<dependency rev="4.5.0" org="net.java.dev.jna" name="jna" />
-		<dependency rev="4.5.0" org="net.java.dev.jna" name="jna-platform" />
+		<dependency rev="5.17.0" org="net.java.dev.jna" name="jna" />
+		<dependency rev="5.17.0" org="net.java.dev.jna" name="jna-platform" />
 		<dependency rev="2.33" org="args4j" name="args4j" />
 		<dependency rev="2.10.4" org="net.sf.ehcache" name="ehcache" />
 		<dependency rev="59.1" org="com.ibm.icu" name="icu4j" />
-		<dependency rev="1.10.2" org="org.jsoup" name="jsoup" />
-		<dependency rev="1.6" org="org.tukaani" name="xz" />
+		<dependency rev="1.21.1" org="org.jsoup" name="jsoup" />
+		<dependency rev="1.10" org="org.tukaani" name="xz" />
 		<dependency rev="2.3.0" org="javax.xml.bind" name="jaxb-api" />
 		<dependency rev="4.9.12" org="com.cedarsoftware" name="json-io" />
-		<dependency rev="2.5" org="commons-io" name="commons-io" />
-		<dependency rev="3.6" org="commons-net" name="commons-net" />
+		<dependency rev="2.21.0" org="commons-io" name="commons-io" />
+		<dependency rev="3.12.0" org="commons-net" name="commons-net" />
 		<dependency rev="1.7.25" org="org.slf4j" name="slf4j-jdk14" />
 		<dependency rev="1.10.0" org="net.java.dev.glazedlists" name="glazedlists_java16" />
 		<dependency rev="5.0" org="com.miglayout" name="miglayout-swing" />
-		<dependency rev="2.1" org="org.apache.commons" name="commons-vfs2" />
+		<dependency rev="2.10.0" org="org.apache.commons" name="commons-vfs2" />
 		<dependency rev="0.7" org="com.github.junrar" name="junrar" />
 		<dependency rev="2.6.1" org="com.fifesoft" name="rsyntaxtextarea" />
 		<dependency rev="9.20-2.00beta" org="net.sf.sevenzipjbinding" name="sevenzipjbinding" />
 		<dependency rev="9.20-2.00beta" org="net.sf.sevenzipjbinding" name="sevenzipjbinding-all-platforms" />
 		<dependency rev="0.6" org="com.optimaize.languagedetector" name="language-detector" />
-		<dependency rev="0.6.5" org="one.util" name="streamex" />
+		<dependency rev="0.8.3" org="one.util" name="streamex" />
 		<dependency rev="8.40.13" org="org.controlsfx" name="controlsfx" />
-		<dependency rev="3.0.0" org="com.googlecode.lanterna" name="lanterna" />
-		<dependency rev="2.10.1" org="com.drewnoakes" name="metadata-extractor" />
+		<dependency rev="3.1.3" org="com.googlecode.lanterna" name="lanterna" />
+		<dependency rev="2.19.0" org="com.drewnoakes" name="metadata-extractor" />
 		<dependency rev="21.0.2" org="org.openjfx" name="javafx-base" transitive="false">
 			<artifact name="javafx-base" type="jar" ext="jar" m:classifier="linux" />
 		</dependency>
@@ -65,11 +65,11 @@
 		<dependency rev="1.10.15" org="org.apache.ant" name="ant-commons-net" />
 		<dependency rev="1.10.15" org="org.apache.ant" name="ant-javamail" />
 		<dependency rev="1.10.15" org="org.apache.ant" name="ant-jsch" />
-		<dependency rev="2.4.0" org="org.apache.ivy" name="ivy" />
+		<dependency rev="2.5.3" org="org.apache.ivy" name="ivy" />
 
 		<!-- FileBot Ant Build -->
 		<dependency rev="1.10.15" org="org.apache.ant" name="ant-junit" />
 		<dependency rev="0.6" org="net.filebot" name="ant-spk" />
-		<dependency rev="1.5" org="org.vafer" name="jdeb" />
+		<dependency rev="1.14" org="org.vafer" name="jdeb" />
 	</dependencies>
 </ivy-module>
