@@ -13,7 +13,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 
@@ -24,20 +27,18 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.kohsuke.args4j.CmdLineException;
-import org.w3c.dom.Document;
 
 import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.ui.FileBotMenuBar;
-import net.filebot.ui.GettingStartedStage;
 import net.filebot.ui.MainFrame;
 import net.filebot.ui.NotificationHandler;
 import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
 import net.filebot.ui.transfer.FileTransferable;
-import net.filebot.util.PreferencesMap.PreferencesEntry;
+import net.filebot.util.JsonUtilities;
 import net.filebot.util.ui.SwingEventBus;
 import net.miginfocom.swing.MigLayout;
 
@@ -135,20 +136,11 @@ public class Main {
 			SwingEventBus.getInstance().post(new FileTransferable(files));
 		}
 
-		// JavaFX is used for ProgressMonitor and GettingStartedDialog
+		// JavaFX is used for ProgressMonitor
 		try {
 			initJavaFX();
 		} catch (Throwable e) {
 			log.log(Level.SEVERE, "Failed to initialize JavaFX. Please install JavaFX.", e);
-		}
-
-		// check if application help should be shown
-		if (!"skip".equals(System.getProperty("application.help"))) {
-			try {
-				checkGettingStarted();
-			} catch (Throwable e) {
-				debug.log(Level.WARNING, "Failed to show Getting Started help", e);
-			}
 		}
 
 		// check for application updates
@@ -213,31 +205,32 @@ public class Main {
 	 */
 	private static void checkUpdate() throws Exception {
 		Cache cache = Cache.getCache(getApplicationName(), CacheType.Persistent);
-		Document dom = cache.xml("update.url", s -> new URL(getApplicationProperty(s))).expire(Cache.ONE_WEEK).retry(0).get();
+		Map<?, ?> update = JsonUtilities.asMap(cache.json("update.url", s -> new URL(getApplicationProperty(s))).expire(Cache.ONE_WEEK).retry(0).get());
 
-		// parse update xml
-		Map<String, String> update = streamElements(dom.getFirstChild()).collect(toMap(n -> n.getNodeName(), n -> n.getTextContent().trim()));
+		String currentVersion = getApplicationVersion();
+		String latestVersion = Optional.ofNullable(JsonUtilities.getString(update, "tag_name")).orElse(JsonUtilities.getString(update, "name"));
 
-		// check if update is required
-		int latestRev = Integer.parseInt(update.get("revision"));
-		int currentRev = getApplicationRevisionNumber();
+		if (compareVersion(latestVersion, currentVersion) > 0) {
+			String discussion = Optional.ofNullable(JsonUtilities.getString(update, "html_url")).orElse(getApplicationProperty("link.mws"));
+			String download = selectDownloadUrl(update, latestVersion, discussion);
+			String title = String.format("Update Available: %s", latestVersion);
+			String message = String.format("A new version is available (%s → %s).", currentVersion, latestVersion);
 
-		if (latestRev > currentRev && currentRev > 0) {
 			SwingUtilities.invokeLater(() -> {
-				JDialog dialog = new JDialog(JFrame.getFrames()[0], update.get("title"), ModalityType.APPLICATION_MODAL);
+				JDialog dialog = new JDialog(JFrame.getFrames()[0], title, ModalityType.APPLICATION_MODAL);
 				JPanel pane = new JPanel(new MigLayout("fill, nogrid, insets dialog"));
 				dialog.setContentPane(pane);
 
 				pane.add(new JLabel(ResourceManager.getIcon("window.icon.medium")), "aligny top");
-				pane.add(new JLabel(update.get("message")), "aligny top, gap 10, wrap paragraph:push");
+				pane.add(new JLabel(message), "aligny top, gap 10, wrap paragraph:push");
 
 				pane.add(newButton("Download", ResourceManager.getIcon("dialog.continue"), evt -> {
-					openURI(update.get("download"));
+					openURI(download);
 					dialog.setVisible(false);
 				}), "tag ok");
 
 				pane.add(newButton("Details", ResourceManager.getIcon("action.report"), evt -> {
-					openURI(update.get("discussion"));
+					openURI(discussion);
 				}), "tag help2");
 
 				pane.add(newButton("Ignore", ResourceManager.getIcon("dialog.cancel"), evt -> {
@@ -251,18 +244,114 @@ public class Main {
 		}
 	}
 
-	/**
-	 * Show Getting Started to new users
-	 */
-	private static void checkGettingStarted() throws Exception {
-		PreferencesEntry<String> started = Settings.forPackage(Main.class).entry("getting.started").defaultValue("0");
-		if ("0".equals(started.getValue())) {
-			started.setValue("1");
-			started.flush();
+	private static int compareVersion(String left, String right) {
+		int[] a = parseVersion(left);
+		int[] b = parseVersion(right);
 
-			// open Getting Started
-			SwingUtilities.invokeLater(GettingStartedStage::start);
+		int length = Math.max(a.length, b.length);
+		for (int i = 0; i < length; i++) {
+			int x = i < a.length ? a[i] : 0;
+			int y = i < b.length ? b[i] : 0;
+			if (x != y) {
+				return Integer.compare(x, y);
+			}
 		}
+
+		return 0;
+	}
+
+	private static int[] parseVersion(String value) {
+		if (value == null) {
+			return new int[0];
+		}
+
+		return Pattern.compile("\\d+").matcher(value).results().mapToInt(m -> Integer.parseInt(m.group())).toArray();
+	}
+
+	private static String selectDownloadUrl(Map<?, ?> update, String latestVersion, String fallbackUrl) {
+		String deployment = Optional.ofNullable(getApplicationDeployment()).orElse("jar").toLowerCase(Locale.ROOT);
+		String version = Optional.ofNullable(latestVersion).orElse("").toLowerCase(Locale.ROOT);
+		String preferredDebArch = getPreferredDebArch();
+
+		int bestScore = Integer.MIN_VALUE;
+		String bestUrl = fallbackUrl;
+
+		for (Map<?, ?> asset : JsonUtilities.streamJsonObjects(update, "assets").collect(toList())) {
+			String name = Optional.ofNullable(JsonUtilities.getString(asset, "name")).orElse("").toLowerCase(Locale.ROOT);
+			String url = JsonUtilities.getString(asset, "browser_download_url");
+
+			if (url == null || name.isEmpty()) {
+				continue;
+			}
+
+			if (name.endsWith(".asc") || name.endsWith(".changes")) {
+				continue;
+			}
+
+			int score = 0;
+			if (!version.isEmpty() && name.contains(version)) {
+				score += 40;
+			}
+
+			if ("deb".equals(deployment)) {
+				if (!name.endsWith(".deb"))
+					continue;
+				score += 100;
+				if (preferredDebArch != null && name.contains("_" + preferredDebArch + ".deb")) {
+					score += 50;
+				}
+			} else if ("msi".equals(deployment)) {
+				if (!name.endsWith(".msi"))
+					continue;
+				score += 100;
+				if (is64BitArch() && (name.contains("x64") || name.contains("amd64"))) {
+					score += 20;
+				}
+				if (!is64BitArch() && (name.contains("x86") || name.contains("i386"))) {
+					score += 20;
+				}
+			} else if ("appx".equals(deployment)) {
+				if (!(name.endsWith(".appx") || name.endsWith(".msix")))
+					continue;
+				score += 100;
+			} else if ("spk".equals(deployment)) {
+				if (!name.endsWith(".spk"))
+					continue;
+				score += 100;
+			} else if ("app".equals(deployment) || "mas".equals(deployment)) {
+				if (!(name.endsWith(".pkg") || name.endsWith(".dmg") || name.endsWith(".tar.xz")))
+					continue;
+				score += 100;
+			} else {
+				if (!name.endsWith(".jar") || name.contains("-src"))
+					continue;
+				score += 100;
+			}
+
+			if (score > bestScore) {
+				bestScore = score;
+				bestUrl = url;
+			}
+		}
+
+		return bestUrl;
+	}
+
+	private static String getPreferredDebArch() {
+		String arch = System.getProperty("os.arch", "").toLowerCase(Locale.ROOT);
+		if (arch.contains("aarch64") || arch.contains("arm64"))
+			return "arm64";
+		if (arch.contains("arm"))
+			return "armhf";
+		if (arch.contains("64"))
+			return "amd64";
+		if (arch.contains("86") || arch.contains("i386") || arch.contains("i686"))
+			return "i386";
+		return null;
+	}
+
+	private static boolean is64BitArch() {
+		return System.getProperty("os.arch", "").contains("64");
 	}
 
 	private static void restoreWindowBounds(JFrame window, Settings settings) {
