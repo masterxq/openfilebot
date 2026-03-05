@@ -201,17 +201,7 @@
 				<include name="com/sun/**" />
 				<exclude name="module-info.class" />
 			</zipfileset>
-			<zipfileset src="${dir.dist}/lib/javafx-fxml.jar">
-				<include name="javafx/**" />
-				<include name="com/sun/**" />
-				<exclude name="module-info.class" />
-			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/javafx-graphics.jar">
-				<include name="javafx/**" />
-				<include name="com/sun/**" />
-				<exclude name="module-info.class" />
-			</zipfileset>
-			<zipfileset src="${dir.dist}/lib/javafx-media.jar">
 				<include name="javafx/**" />
 				<include name="com/sun/**" />
 				<exclude name="module-info.class" />
@@ -840,9 +830,7 @@
 				<include name="controlsfx.jar" />
 				<include name="javafx-base.jar" />
 				<include name="javafx-controls.jar" />
-				<include name="javafx-fxml.jar" />
 				<include name="javafx-graphics.jar" />
-				<include name="javafx-media.jar" />
 				<include name="javafx-swing.jar" />
 				<include name="rsyntaxtextarea.jar" />
 				<include name="lanterna.jar" />
