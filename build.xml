@@ -972,16 +972,18 @@
 
 
 	<target name="init">
-		<exec executable="git" outputproperty="git.latest.tag" failonerror="false">
+		<exec executable="git" outputproperty="git.latest.tag" errorproperty="git.latest.tag.error" resultproperty="git.latest.tag.status" failonerror="false">
 			<arg line="describe --tags --abbrev=0" />
 		</exec>
 
 		<condition property="build.version" value="${git.latest.tag}" else="${application.version}">
 			<and>
+				<equals arg1="${git.latest.tag.status}" arg2="0" trim="true" />
 				<isset property="git.latest.tag" />
 				<not>
 					<equals arg1="${git.latest.tag}" arg2="" trim="true" />
 				</not>
+				<matches string="${git.latest.tag}" pattern="^[0-9A-Za-z._+-]+$" />
 			</and>
 		</condition>
 
