@@ -81,7 +81,7 @@ jobs:
           RELEASE_GPG_KEY_ID: ${{ secrets.RELEASE_GPG_KEY_ID }}
           RELEASE_GPG_PASSPHRASE: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
         run: |
-          for f in dist/*.jar dist/*.deb dist/*.changes; do
+          for f in dist/*.jar dist/*.deb; do
             [ -f "$f" ] || continue
             gpg --batch --yes --pinentry-mode loopback --passphrase "$RELEASE_GPG_PASSPHRASE" \
               --local-user "$RELEASE_GPG_KEY_ID" --armor --detach-sign "$f"
@@ -95,7 +95,6 @@ jobs:
           path: |
             dist/*.jar
             dist/*.deb
-            dist/*.changes
             dist/*.asc
 
       - name: Publish GitHub Release
@@ -107,7 +106,6 @@ jobs:
           files: |
             dist/*.jar
             dist/*.deb
-            dist/*.changes
             dist/*.asc
 
   windows-installer-build:

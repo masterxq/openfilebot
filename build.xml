@@ -872,12 +872,14 @@
 				<include name="commons-net.jar" />
 				<include name="jsch.jar" />
 				<include name="javax.mail.jar" />
+				<include name="failureaccess.jar" />
 			</fileset>
 			<fileset dir="${dir.lib}/ivy/bundle">
 				<include name="args4j.jar" />
 				<include name="json-io.jar" />
 				<include name="guava.jar" />
 				<include name="failureaccess.jar" />
+				<include name="xmpcore.jar" />
 			</fileset>
 			<fileset dir="${dir.lib}/jars">
 				<include name="xmlrpc.jar" />
