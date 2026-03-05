@@ -40,10 +40,37 @@ jobs:
       - name: Install Ant and Ivy
         run: |
           sudo apt-get update
-          sudo apt-get install -y ant ivy
+          sudo apt-get install -y ant ivy gnupg
 
       - name: Build fatjar and Debian packages
         run: ant -lib /usr/share/java/ivy.jar clean resolve fatjar deb
+
+      - name: Validate signing secrets
+        env:
+          RELEASE_GPG_PRIVATE_KEY_B64: ${{ secrets.RELEASE_GPG_PRIVATE_KEY_B64 }}
+          RELEASE_GPG_KEY_ID: ${{ secrets.RELEASE_GPG_KEY_ID }}
+          RELEASE_GPG_PASSPHRASE: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+        run: |
+          [ -n "$RELEASE_GPG_PRIVATE_KEY_B64" ] || { echo "Missing secret: RELEASE_GPG_PRIVATE_KEY_B64"; exit 1; }
+          [ -n "$RELEASE_GPG_KEY_ID" ] || { echo "Missing secret: RELEASE_GPG_KEY_ID"; exit 1; }
+          [ -n "$RELEASE_GPG_PASSPHRASE" ] || { echo "Missing secret: RELEASE_GPG_PASSPHRASE"; exit 1; }
+
+      - name: Import GPG signing key
+        env:
+          RELEASE_GPG_PRIVATE_KEY_B64: ${{ secrets.RELEASE_GPG_PRIVATE_KEY_B64 }}
+        run: |
+          echo "$RELEASE_GPG_PRIVATE_KEY_B64" | base64 --decode | gpg --batch --import
+
+      - name: Sign artifacts
+        env:
+          RELEASE_GPG_KEY_ID: ${{ secrets.RELEASE_GPG_KEY_ID }}
+          RELEASE_GPG_PASSPHRASE: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+        run: |
+          for f in dist/*.jar dist/*.deb dist/*.changes; do
+            [ -f "$f" ] || continue
+            gpg --batch --yes --pinentry-mode loopback --passphrase "$RELEASE_GPG_PASSPHRASE" \
+              --local-user "$RELEASE_GPG_KEY_ID" --armor --detach-sign "$f"
+          done
 
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
@@ -54,6 +81,7 @@ jobs:
             dist/*.jar
             dist/*.deb
             dist/*.changes
+            dist/*.asc
 
       - name: Publish GitHub Release
         if: inputs.publish_release
@@ -65,3 +93,4 @@ jobs:
             dist/*.jar
             dist/*.deb
             dist/*.changes
+            dist/*.asc
