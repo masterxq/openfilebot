@@ -158,7 +158,16 @@ jobs:
           }
 
           Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/org/apache/ivy/ivy/2.5.2/ivy-2.5.2.jar" -OutFile "ivy.jar"
-          ant -lib ivy.jar -Dapplication.version="$env:RELEASE_VERSION" clean resolve fatjar msi
+          $antArgs = @(
+            '-lib',
+            'ivy.jar',
+            "-Dapplication.version=$env:RELEASE_VERSION",
+            'clean',
+            'resolve',
+            'fatjar',
+            'msi'
+          )
+          & ant @antArgs
 
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
