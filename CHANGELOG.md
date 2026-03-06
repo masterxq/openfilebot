@@ -25,4 +25,4 @@
 - removed unnecessary code, files and dependencies
 - Updated README and other documentation
 - Added more tests for better media detection, but still failing.
-- Updated to resent java version: Java 21-24 should work, build with Java 21.
+- Updated to recent java version: Java 21-24 should work, build with Java 21.

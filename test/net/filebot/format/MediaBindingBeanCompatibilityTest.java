@@ -4,7 +4,9 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,15 +20,50 @@ import net.filebot.web.SeriesInfo;
 
 public class MediaBindingBeanCompatibilityTest {
 
+	private Set<String> getDefineKeys() {
+		return Arrays.stream(MediaBindingBean.class.getMethods()).map(m -> m.getAnnotation(Define.class)).filter(Objects::nonNull).flatMap(a -> Arrays.stream(a.value())).filter(k -> k != null && k.length() > 0).collect(Collectors.toSet());
+	}
+
+	private Set<String> getPreviewExpressionRoots() {
+		String expressions = ResourceBundle.getBundle("net.filebot.ui.rename.BindingDialog").getString("expressions");
+
+		Set<String> roots = new HashSet<String>();
+		for (String expression : expressions.split(",")) {
+			String token = expression.trim();
+			if (token.isEmpty()) {
+				continue;
+			}
+
+			roots.add(token);
+			roots.add(token.split("\\.", 2)[0]);
+			roots.add(token.split("\\[", 2)[0]);
+		}
+
+		return roots;
+	}
+
 	@Test
 	public void includesExpectedCompatibilityBindings() {
-		Set<String> keys = Arrays.stream(MediaBindingBean.class.getMethods()).map(m -> m.getAnnotation(Define.class)).filter(Objects::nonNull).flatMap(a -> Arrays.stream(a.value())).filter(k -> k != null && k.length() > 0).collect(Collectors.toSet());
+		Set<String> keys = getDefineKeys();
 
 		assertTrue(keys.contains("ci"));
 		assertTrue(keys.contains("hdr"));
 		assertTrue(keys.contains("kodi"));
 		assertTrue(keys.contains("ffprobe"));
 		assertTrue(keys.contains("photo"));
+	}
+
+	@Test
+	public void bindingsAreListedInPreviewOrExplicitlyExcluded() {
+		Set<String> keys = getDefineKeys();
+		Set<String> preview = getPreviewExpressionRoots();
+
+		Set<String> excluded = new HashSet<String>(Arrays.asList("object", "xattr", "ci", "episodelist", "menu", "image", "chapters", "exif", "f", "home", "output", "defines", "label", "i", "self", "model", "json"));
+
+		Set<String> missing = keys.stream().filter(k -> !preview.contains(k)).collect(Collectors.toSet());
+		Set<String> notExplicitlyExcluded = missing.stream().filter(k -> !excluded.contains(k)).collect(Collectors.toSet());
+
+		assertTrue("Bindings missing from BindingDialog expressions without explicit exclusion: " + notExplicitlyExcluded, notExplicitlyExcluded.isEmpty());
 	}
 
 	@Test

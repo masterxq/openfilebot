@@ -964,6 +964,29 @@
 	</target>
 
 
+	<target name="test-ci" depends="test-compile" description="Run test suite and fail build on test failures/errors">
+		<mkdir dir="${dir.test.report}" />
+
+		<junit printsummary="withOutAndErr" showoutput="yes" fork="yes" forkmode="once" haltonfailure="yes" haltonerror="yes">
+			<classpath>
+				<pathelement location="${dir.build}" />
+				<pathelement location="${dir.test.build}" />
+				<fileset dir="${dir.dist}/lib" includes="*.jar" />
+				<fileset dir="${dir.lib}/ivy/jar" includes="junit.jar, hamcrest-core.jar, hamcrest-library.jar" />
+			</classpath>
+
+			<formatter type="plain" usefile="true" />
+			<formatter type="xml" />
+
+			<batchtest todir="${dir.test.report}">
+				<fileset dir="${dir.test.build}" includes="**/*Test.class, **/*Tests.class, **/*TestSuite.class" />
+			</batchtest>
+		</junit>
+
+		<echo>CI test execution finished. See reports in ${dir.test.report}</echo>
+	</target>
+
+
 	<target name="clean" description="Delete build folders">
 		<delete dir="${dir.dist}" />
 		<delete dir="${dir.build}" />

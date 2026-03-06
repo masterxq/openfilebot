@@ -28,8 +28,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ant ivy
 
+      - name: Run tests
+        run: ant -lib /usr/share/java/ivy.jar clean resolve test-ci
+
       - name: Build fatjar and Debian packages
-        run: ant -lib /usr/share/java/ivy.jar clean resolve fatjar deb
+        run: ant -lib /usr/share/java/ivy.jar fatjar deb
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
