@@ -3,7 +3,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>console</headerType>
   <jar></jar>
-  <outfile>filebot.exe</outfile>
+  <outfile>openfilebot.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -15,7 +15,7 @@
   <manifest></manifest>
   <icon>..\icons\shortcut.ico</icon>
   <classPath>
-    <mainClass>net.filebot.Main</mainClass>
+    <mainClass>org.openfilebot.Main</mainClass>
     <cp>%EXEDIR%\lib\*.jar</cp>
   </classPath>
   <jre>

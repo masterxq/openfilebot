@@ -61,4 +61,4 @@ JAVA_BIN="$(pick_java)" || {
 	exit 1
 }
 
-"$JAVA_BIN" -Dunixfs=false -DuseGVFS=true -DuseExtendedFileAttributes=true -DuseCreationDate=false -Djava.net.useSystemProxies=true -Djna.nosys=false -Djna.nounpack=true -Dapplication.deployment=deb -Dnet.filebot.gio.GVFS="$XDG_RUNTIME_DIR/gvfs" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Dnet.filebot.AcoustID.fpcalc="$APP_ROOT/fpcalc" $JAVA_OPTS -jar "$APP_ROOT/openfilebot.jar" "$@"
+"$JAVA_BIN" -Dunixfs=false -DuseGVFS=true -DuseExtendedFileAttributes=true -DuseCreationDate=false -Djava.net.useSystemProxies=true -Djna.nosys=false -Djna.nounpack=true -Dapplication.deployment=deb -Dorg.openfilebot.gio.GVFS="$XDG_RUNTIME_DIR/gvfs" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Dorg.openfilebot.AcoustID.fpcalc="$APP_ROOT/fpcalc" $JAVA_OPTS $OPENFILEBOT_OPTS $FILEBOT_OPTS -jar "$APP_ROOT/openfilebot.jar" "$@"

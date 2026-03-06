@@ -7,11 +7,11 @@ lib/ivy/
 
 *.properties
 *.txt
-!source/net/filebot/media/release-groups.txt
-!source/net/filebot/media/release-groups.LICENSE-CC0-1.0.txt
-!source/net/filebot/media/query-blacklist.txt
-!source/net/filebot/media/series-mappings.txt
-!source/net/filebot/media/thetvdb.txt
+!source/org/openfilebot/media/release-groups.txt
+!source/org/openfilebot/media/release-groups.LICENSE-CC0-1.0.txt
+!source/org/openfilebot/media/query-blacklist.txt
+!source/org/openfilebot/media/series-mappings.txt
+!source/org/openfilebot/media/thetvdb.txt
 
 *.sh
 *.cmd

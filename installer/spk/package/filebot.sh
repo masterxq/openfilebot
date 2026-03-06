@@ -61,5 +61,5 @@ EXTRACTOR="ApacheVFS"					# use Apache Commons VFS2 with junrar plugin
 # select application data folder
 APP_DATA="$APP_ROOT/data/$USER"
 
-# start filebot
-java -Djava.awt.headless=true -Dunixfs=false -DuseExtendedFileAttributes=true -DuseCreationDate=false -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8" -Djava.net.useSystemProxies=false -Djna.nosys=false -Djna.nounpack=true -Dapplication.deployment=spk -Dnet.filebot.Archive.extractor="$EXTRACTOR" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Duser.home="$APP_DATA" -Djava.util.prefs.PreferencesFactory=net.filebot.util.prefs.FilePreferencesFactory -Dnet.filebot.util.prefs.file="$APP_DATA/prefs.properties" $JAVA_OPTS -jar "$APP_ROOT/FileBot.jar" "$@"
+# start OpenFileBot
+java -Djava.awt.headless=true -Dunixfs=false -DuseExtendedFileAttributes=true -DuseCreationDate=false -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8" -Djava.net.useSystemProxies=false -Djna.nosys=false -Djna.nounpack=true -Dapplication.deployment=spk -Dorg.openfilebot.Archive.extractor="$EXTRACTOR" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Duser.home="$APP_DATA" -Djava.util.prefs.PreferencesFactory=org.openfilebot.util.prefs.FilePreferencesFactory -Dorg.openfilebot.util.prefs.file="$APP_DATA/prefs.properties" $JAVA_OPTS $OPENFILEBOT_OPTS $FILEBOT_OPTS -jar "$APP_ROOT/openfilebot.jar" "$@"

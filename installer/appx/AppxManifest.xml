@@ -11,7 +11,7 @@
 		Name="@{microsoft.application.name}"
 		ProcessorArchitecture="@{arch}"
 		Publisher="@{microsoft.application.publisher}"
-		Version="@{application.version}.0"
+		Version="@{build.version}.0"
 	/>
 
 	<Properties>
@@ -34,7 +34,7 @@
 	</Capabilities>
 
 	<Applications>
-		<Application Id="@{package.identifier}" Executable="filebot.launcher.exe" EntryPoint="Windows.FullTrustApplication">
+		<Application Id="@{package.identifier}" Executable="openfilebot.launcher.exe" EntryPoint="Windows.FullTrustApplication">
 			<uap:VisualElements DisplayName="@{application.name}" Description="@{package.synopsis}" BackgroundColor="transparent" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" >
 				<uap:DefaultTile ShortName="@{application.name}" Wide310x150Logo="Assets\Wide310x150Logo.png" Square310x310Logo="Assets\Square310x310Logo.png" Square71x71Logo="Assets\Square71x71Logo.png">
 					<uap:ShowNameOnTiles>
@@ -45,9 +45,9 @@
 				</uap:DefaultTile>
 			</uap:VisualElements>
 			<Extensions>
-				<uap3:Extension Category="windows.appExecutionAlias" Executable="filebot.exe" EntryPoint="Windows.FullTrustApplication">
+				<uap3:Extension Category="windows.appExecutionAlias" Executable="openfilebot.exe" EntryPoint="Windows.FullTrustApplication">
 					<uap3:AppExecutionAlias>
-						<desktop:ExecutionAlias Alias="filebot.exe" />
+						<desktop:ExecutionAlias Alias="openfilebot.exe" />
 					</uap3:AppExecutionAlias>
 				</uap3:Extension>
 				<uap3:Extension Category="windows.fileTypeAssociation">
@@ -90,8 +90,8 @@
 							<uap:FileType>.ogm</uap:FileType>
 						</uap:SupportedFileTypes>
 						<uap2:SupportedVerbs>
-							<uap3:Verb MultiSelectModel="Player" Id="FileBotRename" Extended="true" Parameters="--mode Rename &quot;%1&quot;">Rename with @{application.name}</uap3:Verb>
-							<uap3:Verb MultiSelectModel="Player" Id="FileBotChecksum" Extended="true" Parameters="--mode SFV &quot;%1&quot;">Calculate Hash with @{application.name}</uap3:Verb>
+							<uap3:Verb MultiSelectModel="Player" Id="OpenFileBotRename" Extended="true" Parameters="--mode Rename &quot;%1&quot;">Rename with @{application.name}</uap3:Verb>
+							<uap3:Verb MultiSelectModel="Player" Id="OpenFileBotChecksum" Extended="true" Parameters="--mode SFV &quot;%1&quot;">Calculate Hash with @{application.name}</uap3:Verb>
 						</uap2:SupportedVerbs>
 					</uap3:FileTypeAssociation>
 				</uap3:Extension>

@@ -1,5 +1,5 @@
 Package: @{package.name}
-Version: @{application.version}
+Version: @{build.version}
 Architecture: @{deb.arch}
 Maintainer: @{package.developer} <@{package.maintainer}>
 Description: @{package.synopsis}

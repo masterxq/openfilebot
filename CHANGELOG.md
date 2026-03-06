@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.3
+
+- Fixed rename history loading on modern Java runtimes by bundling the required JAXB runtime classes into the executable package.
+- Changed default user data location for OpenFileBot to `~/.openfilebot` (instead of sharing `~/.filebot`).
+- Added one-time history migration: if OpenFileBot has no own `history.xml`, it imports legacy FileBot history from `~/.filebot/history.xml`.
+- Added safe migration validation: malformed legacy history files are detected and skipped without crashing the application.
+
 ## 0.9.2
 
 - Better matching for series and multi-episode files, including tricky naming patterns.
