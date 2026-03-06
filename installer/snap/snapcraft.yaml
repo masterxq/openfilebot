@@ -1,5 +1,5 @@
 name: @{package.name}
-version: @{application.version}
+version: @{build.version}
 summary: @{package.synopsis}
 description: @{package.description}
 

@@ -14,7 +14,7 @@
 	<!-- import property files -->
 	<property file="${basedir}/profile.properties" />
 	<property file="${dir.installer}/ant/ant.properties" />
-	<property file="${dir.source}/net/filebot/Settings.properties" />
+	<property file="${dir.source}/org/openfilebot/Settings.properties" />
 
 	<!-- define output paths -->
 	<property name="dir.cache" location="${basedir}/cache" />
@@ -148,7 +148,7 @@
 
 
 	<target name="jar" depends="build">
-		<jar destfile="${dir.dist}/lib/filebot.jar" compress="no">
+		<jar destfile="${dir.dist}/lib/openfilebot.jar" compress="no">
 			<fileset dir="${dir.build}" />
 			<manifest>
 				<attribute name="Build-Date" value="${tstamp.date}" />
@@ -162,7 +162,7 @@
 	<target name="fatjar" depends="jar" description="Build executable jar">
 		<jar destfile="${path.fatjar}" filesetmanifest="merge" duplicate="fail" compress="no">
 			<!-- include main jar -->
-			<zipfileset src="${dir.dist}/lib/filebot.jar" />
+			<zipfileset src="${dir.dist}/lib/openfilebot.jar" />
 
 			<!-- include core libraries -->
 			<zipfileset src="${dir.dist}/lib/args4j.jar">
@@ -177,6 +177,13 @@
 			</zipfileset>
 
 			<!-- include UI libraries -->
+			<zipfileset src="${dir.dist}/lib/flatlaf.jar">
+				<include name="com/formdev/flatlaf/**" />
+				<include name="META-INF/services/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/flatlaf-extras.jar">
+				<include name="com/formdev/flatlaf/extras/**" />
+			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/miglayout-core.jar">
 				<include name="net/miginfocom/**" />
 			</zipfileset>
@@ -244,6 +251,29 @@
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/xmlrpc.jar">
 				<include name="redstone/xmlrpc/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/jaxb-api.jar">
+				<include name="javax/xml/bind/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/jaxb-impl.jar">
+				<include name="com/sun/xml/bind/**" />
+				<include name="META-INF/services/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/istack-commons-runtime.jar">
+				<include name="com/sun/istack/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/stax-ex.jar">
+				<include name="org/jvnet/staxex/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/txw2.jar">
+				<include name="com/sun/xml/txw2/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/FastInfoset.jar">
+				<include name="com/sun/xml/fastinfoset/**" />
+				<include name="org/jvnet/fastinfoset/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/activation.jar">
+				<include name="javax/activation/**" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/sevenzipjbinding.jar">
 				<include name="net/sf/sevenzipjbinding/**" />
@@ -840,6 +870,8 @@
 		<!-- copy dependencies -->
 		<copy todir="${dir.dist}/lib" flatten="yes" overwrite="yes" verbose="yes">
 			<fileset dir="${dir.lib}/ivy/jar">
+				<include name="flatlaf.jar" />
+				<include name="flatlaf-extras.jar" />
 				<include name="ehcache.jar" />
 				<include name="miglayout-core.jar" />
 				<include name="miglayout-swing.jar" />
@@ -857,6 +889,10 @@
 				<include name="commons-vfs2.jar" />
 				<include name="jaxb-api.jar" />
 				<include name="jaxb-impl.jar" />
+				<include name="istack-commons-runtime.jar" />
+				<include name="stax-ex.jar" />
+				<include name="txw2.jar" />
+				<include name="FastInfoset.jar" />
 				<include name="activation.jar" />
 				<include name="junrar.jar" />
 				<include name="jna.jar" />
@@ -917,6 +953,8 @@
 		<copy-replace todir="${dir.build}">
 			<fileset dir="${dir.source}" includes="**/*.properties" />
 		</copy-replace>
+
+		<replace file="${dir.build}/org/openfilebot/Settings.properties" token="application.version: ${application.version}" value="application.version: ${build.version}" summary="true" />
 
 		<!-- copy resources -->
 		<copy todir="${dir.build}">

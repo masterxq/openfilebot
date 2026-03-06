@@ -18,9 +18,12 @@
 		<dependency rev="2.33" org="args4j" name="args4j" />
 		<dependency rev="2.10.4" org="net.sf.ehcache" name="ehcache" />
 		<dependency rev="59.1" org="com.ibm.icu" name="icu4j" />
+		<dependency rev="3.4.1" org="com.formdev" name="flatlaf" />
+		<dependency rev="3.4.1" org="com.formdev" name="flatlaf-extras" />
 		<dependency rev="1.21.1" org="org.jsoup" name="jsoup" />
 		<dependency rev="1.10" org="org.tukaani" name="xz" />
 		<dependency rev="2.3.0" org="javax.xml.bind" name="jaxb-api" />
+		<dependency rev="2.3.8" org="com.sun.xml.bind" name="jaxb-impl" />
 		<dependency rev="4.9.12" org="com.cedarsoftware" name="json-io" />
 		<dependency rev="2.21.0" org="commons-io" name="commons-io" />
 		<dependency rev="3.12.0" org="commons-net" name="commons-net" />

@@ -22,7 +22,7 @@ cd "$WORKING_DIR"
 
 
 # update core application files
-PACKAGE_NAME="FileBot.jar.xz.gpg"
+PACKAGE_NAME="openfilebot.jar.xz.gpg"
 PACKAGE_FILE="$APP_ROOT/$PACKAGE_NAME"
 PACKAGE_URL="https://github.com/masterxq/openfilebot/releases/latest/download/$PACKAGE_NAME"
 
@@ -37,7 +37,7 @@ fi
 
 # initialize gpg
 GPG_HOME="$APP_ROOT/data/.gpg"
-JAR_XZ_FILE="$APP_ROOT/FileBot.jar.xz"
+JAR_XZ_FILE="$APP_ROOT/openfilebot.jar.xz"
 
 if [ ! -d "$GPG_HOME" ]; then
 	mkdir -p "$GPG_HOME" && chmod 700 "$GPG_HOME" && gpg --homedir "$GPG_HOME" --import "$APP_ROOT/maintainer.pub"
