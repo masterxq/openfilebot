@@ -194,21 +194,37 @@
 			<zipfileset src="${dir.dist}/lib/javafx-base.jar">
 				<include name="javafx/**" />
 				<include name="com/sun/**" />
+				<include name="*.so" />
+				<include name="*.dll" />
+				<include name="*.dylib" />
+				<include name="*.jnilib" />
 				<exclude name="module-info.class" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/javafx-controls.jar">
 				<include name="javafx/**" />
 				<include name="com/sun/**" />
+				<include name="*.so" />
+				<include name="*.dll" />
+				<include name="*.dylib" />
+				<include name="*.jnilib" />
 				<exclude name="module-info.class" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/javafx-graphics.jar">
 				<include name="javafx/**" />
 				<include name="com/sun/**" />
+				<include name="*.so" />
+				<include name="*.dll" />
+				<include name="*.dylib" />
+				<include name="*.jnilib" />
 				<exclude name="module-info.class" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/javafx-swing.jar">
 				<include name="javafx/**" />
 				<include name="com/sun/**" />
+				<include name="*.so" />
+				<include name="*.dll" />
+				<include name="*.dylib" />
+				<include name="*.jnilib" />
 				<exclude name="module-info.class" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/rsyntaxtextarea.jar">
@@ -302,6 +318,7 @@
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/slf4j-jdk14.jar">
 				<include name="org/slf4j/**" />
+				<include name="META-INF/services/org.slf4j.spi.SLF4JServiceProvider" />
 			</zipfileset>
 
 			<!-- include Groovy libraries -->
@@ -821,7 +838,7 @@
 
 	<target name="build" depends="revision">
 		<!-- copy dependencies -->
-		<copy todir="${dir.dist}/lib" flatten="yes" verbose="yes">
+		<copy todir="${dir.dist}/lib" flatten="yes" overwrite="yes" verbose="yes">
 			<fileset dir="${dir.lib}/ivy/jar">
 				<include name="ehcache.jar" />
 				<include name="miglayout-core.jar" />

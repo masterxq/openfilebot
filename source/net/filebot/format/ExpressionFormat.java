@@ -35,6 +35,7 @@ import groovy.lang.MissingPropertyException;
 public class ExpressionFormat extends Format {
 
 	private static final Pattern UNSUPPORTED_CLASS_FILE_MAJOR_VERSION = Pattern.compile("Unsupported class file major version\\s+(\\d+)");
+	private static final Pattern UNEXPECTED_INPUT_MESSAGE = Pattern.compile("(?i)^Unexpected input:\\s*'([^']*)'.*$");
 
 	private final String expression;
 
@@ -79,14 +80,15 @@ public class ExpressionFormat extends Format {
 				if (level == 1) {
 					if (token.length() > 0) {
 						try {
-							compilation.add(compileScriptlet(token.toString()));
+							String scriptlet = token.toString();
+							compilation.add(compileScriptlet(scriptlet));
 						} catch (ScriptException e) {
 							// try to extract syntax exception
 							ScriptException illegalSyntax = e;
 
 							try {
 								String message = findCause(e, MultipleCompilationErrorsException.class).getErrorCollector().getSyntaxError(0).getOriginalMessage();
-								illegalSyntax = new ScriptException("SyntaxError: " + message);
+								illegalSyntax = new ScriptException("SyntaxError: " + normalizeSyntaxErrorMessage(message));
 							} catch (Exception ignore) {
 								// ignore, just use original exception
 							}
@@ -122,6 +124,25 @@ public class ExpressionFormat extends Format {
 		}
 
 		return compilation.toArray();
+	}
+
+	private String normalizeSyntaxErrorMessage(String message) {
+		if (message == null) {
+			return "invalid syntax";
+		}
+
+		Matcher unexpectedInput = UNEXPECTED_INPUT_MESSAGE.matcher(message.trim());
+		if (unexpectedInput.matches()) {
+			String input = unexpectedInput.group(1);
+			if (input != null && input.length() > 0) {
+				char token = input.charAt(input.length() - 1);
+				if (!Character.isLetterOrDigit(token) && !Character.isWhitespace(token)) {
+					return "unexpected token: " + token;
+				}
+			}
+		}
+
+		return message;
 	}
 
 	public Bindings getBindings(Object value) {

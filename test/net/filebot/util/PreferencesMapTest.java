@@ -3,7 +3,7 @@ package net.filebot.util;
 
 import static org.junit.Assert.*;
 
-import java.awt.Color;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -14,8 +14,10 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import net.filebot.ui.rename.Preset;
 import net.filebot.util.PreferencesMap.JsonAdapter;
 import net.filebot.util.PreferencesMap.SimpleAdapter;
+import net.filebot.web.SortOrder;
 
 public class PreferencesMapTest {
 
@@ -145,11 +147,17 @@ public class PreferencesMapTest {
 
 	@Test
 	public void jsonAdapter() {
-		Map<String, Color> map = PreferencesMap.map(temp, new JsonAdapter<Color>(Color.class));
-		Color color = new Color(0.25f, 0.50f, 1.00f);
+		Map<String, Preset> map = PreferencesMap.map(temp, new JsonAdapter<Preset>(Preset.class));
+		Preset preset = new Preset("example", new File("/tmp/input"), null, null, null, SortOrder.Airdate, "Strict", null, null);
 
-		map.put("color", color);
-		assertEquals(color, map.get("color"));
+		map.put("preset", preset);
+
+		Preset restored = map.get("preset");
+		assertNotNull(restored);
+		assertEquals(preset.name, restored.name);
+		assertEquals(preset.path, restored.path);
+		assertEquals(preset.sortOrder, restored.sortOrder);
+		assertEquals(preset.matchMode, restored.matchMode);
 	}
 
 }

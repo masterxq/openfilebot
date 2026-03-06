@@ -1,26 +1,27 @@
 package net.filebot.mediainfo;
 
+import static org.junit.Assume.*;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 
-@Ignore("Sample file does not exist")
 public class MediaInfoTest {
+
+	private static final File SAMPLE_FIXTURE = new File("test/resources/mediainfo/big_buck_bunny_320x180_5s.mp4");
 
 	File getSampleFile(String name) throws Exception {
 		File tmpdir = new File(FileUtils.getTempDirectory(), getClass().getName());
-		File sample = new File(tmpdir, "big_buck_bunny_720p_1mb.mp4");
-		URL data = new URL("http://www.sample-videos.com/video/mp4/720/big_buck_bunny_720p_1mb.mp4");
+		File sample = new File(tmpdir, "big_buck_bunny_320x180_5s.mp4");
+
+		assumeTrue("Local sample fixture is missing: " + SAMPLE_FIXTURE.getPath(), SAMPLE_FIXTURE.isFile());
 
 		if (!sample.exists()) {
-			FileUtils.copyURLToFile(data, sample);
+			FileUtils.copyFile(SAMPLE_FIXTURE, sample);
 		}
 
 		File file = new File(tmpdir, name + ".mp4");

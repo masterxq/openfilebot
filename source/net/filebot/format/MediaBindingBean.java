@@ -415,6 +415,22 @@ public class MediaBindingBean {
 		return Integer.parseInt(bitdepth);
 	}
 
+	@Define("hdr")
+	public String getHighDynamicRange() {
+		String metadata = getMediaInfo(StreamKind.Video, "HDR_Format_Commercial", "HDR_Format_String", "HDR_Format", "transfer_characteristics").filter(Objects::nonNull).collect(joining(" ")).toUpperCase();
+
+		if (metadata.contains("DOLBY VISION") || metadata.contains("DOVI"))
+			return "DV";
+		if (metadata.contains("HDR10+"))
+			return "HDR10+";
+		if (metadata.contains("HDR10") || metadata.contains("PQ"))
+			return "HDR10";
+		if (metadata.contains("HLG"))
+			return "HLG";
+
+		return null;
+	}
+
 	@Define("ws")
 	public String getWidescreen() {
 		List<Integer> dim = getDimension();
@@ -685,6 +701,14 @@ public class MediaBindingBean {
 	public String getCollection() {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getCollection();
+
+		return null;
+	}
+
+	@Define("ci")
+	public Integer getCollectionIndex() {
+		if (infoObject instanceof MoviePart)
+			return ((MoviePart) infoObject).getPartIndex();
 
 		return null;
 	}
@@ -1057,6 +1081,30 @@ public class MediaBindingBean {
 		return new File(path);
 	}
 
+	@Define("kodi")
+	public File getKodiStandardPath() throws Exception {
+		if (infoObject instanceof Episode) {
+			Episode episode = getEpisode();
+			List<Episode> episodes = getEpisodes();
+
+			String episodeNumbers = episode instanceof MultiEpisode ? EpisodeFormat.SeasonEpisode.formatMultiSxE(episodes) : EpisodeFormat.SeasonEpisode.formatSxE(episode);
+			String episodeTitle = truncateText(EpisodeFormat.SeasonEpisode.formatMultiTitle(episodes), NamingStandard.TITLE_MAX_LENGTH);
+
+			boolean anime = episode.getSeriesInfo() != null && isAnime(episode);
+			if (anime) {
+				String primaryTitle = Optional.ofNullable(episode.getSeriesInfo().getName()).orElse(episode.getSeriesName());
+				String filename = String.join(" - ", primaryTitle, episodeNumbers, episodeTitle);
+				return new File(buildStandardPath(NamingStandard.Plex.getAnimeFolder(), primaryTitle, filename));
+			}
+
+			String season = episode.getSpecial() != null ? NamingStandard.Plex.getSpecialFolder(episode.getSeason()) : episode.getSeason() != null ? NamingStandard.Plex.getSeasonFolder(episode.getSeason()) : null;
+			String filename = String.join(" - ", episode.getSeriesName(), episodeNumbers, episodeTitle);
+			return new File(buildStandardPath(NamingStandard.Plex.getSeriesFolder(), episode.getSeriesName(), season, filename));
+		}
+
+		return getPlexStandardPath();
+	}
+
 	@Define("self")
 	public AssociativeScriptObject getSelf() {
 		return createBindingObject(mediaFile, infoObject, context, property -> null);
@@ -1074,6 +1122,30 @@ public class MediaBindingBean {
 	@Define("json")
 	public String getInfoObjectDump() {
 		return MetaAttributes.toJson(infoObject);
+	}
+
+	@Define("ffprobe")
+	public Object getFFProbeDump() {
+		return getMediaInfo().snapshot();
+	}
+
+	@Define("photo")
+	public ImageMetadata getPhoto() throws Exception {
+		return new ImageMetadata(getMediaFile());
+	}
+
+	private String buildStandardPath(String... names) {
+		return stream(names).filter(Objects::nonNull).map(s -> {
+			return replaceColon(s, ".", " - ");
+		}).map(s -> {
+			return replacePathSeparators(s, " ");
+		}).map(s -> {
+			return normalizeQuotationMarks(s);
+		}).map(s -> {
+			return trimTrailingPunctuation(s);
+		}).map(s -> {
+			return validateFileName(s);
+		}).filter(s -> s.length() > 0).collect(joining("/"));
 	}
 
 	public File getInferredMediaFile() {
