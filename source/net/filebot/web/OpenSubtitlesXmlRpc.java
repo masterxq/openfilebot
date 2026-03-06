@@ -148,7 +148,16 @@ public class OpenSubtitlesXmlRpc {
 	}
 
 	public Movie getIMDBMovieDetails(int imdbid) throws XmlRpcFault {
-		Map<?, ?> response = invoke("GetIMDBMovieDetails", token, imdbid);
+		Map<?, ?> response;
+		try {
+			response = invoke("GetIMDBMovieDetails", token, imdbid);
+		} catch (XmlRpcFault e) {
+			if (e.getErrorCode() == 408) {
+				debug.log(Level.WARNING, String.format("Failed to lookup movie by imdbid %s: %s", imdbid, e.getMessage()));
+				return null;
+			}
+			throw e;
+		}
 
 		try {
 			Map<String, String> data = (Map<String, String>) response.get("data");

@@ -1,0 +1,70 @@
+package net.filebot.format;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.junit.Test;
+
+import net.filebot.web.Episode;
+import net.filebot.web.Movie;
+import net.filebot.web.MoviePart;
+import net.filebot.web.MultiEpisode;
+import net.filebot.web.SeriesInfo;
+
+public class MediaBindingBeanCompatibilityTest {
+
+	@Test
+	public void includesExpectedCompatibilityBindings() {
+		Set<String> keys = Arrays.stream(MediaBindingBean.class.getMethods()).map(m -> m.getAnnotation(Define.class)).filter(Objects::nonNull).flatMap(a -> Arrays.stream(a.value())).filter(k -> k != null && k.length() > 0).collect(Collectors.toSet());
+
+		assertTrue(keys.contains("ci"));
+		assertTrue(keys.contains("hdr"));
+		assertTrue(keys.contains("kodi"));
+		assertTrue(keys.contains("ffprobe"));
+		assertTrue(keys.contains("photo"));
+	}
+
+	@Test
+	public void collectionIndexUsesMoviePartIndex() {
+		Movie movie = new Movie("Avatar", 2009);
+		MoviePart part = new MoviePart(movie, 2, 3);
+		MediaBindingBean bean = new MediaBindingBean(part, new File("Avatar.CD2.mkv"));
+
+		assertEquals(Integer.valueOf(2), bean.getCollectionIndex());
+	}
+
+	@Test
+	public void kodiPathUsesExpandedMultiEpisodeSxE() throws Exception {
+		SeriesInfo seriesInfo = new SeriesInfo();
+		seriesInfo.setDatabase("TheTVDB");
+		seriesInfo.setName("Demo Show");
+
+		Episode e1 = new Episode("Demo Show", 1, 1, "Alpha", null, null, null, 1, seriesInfo);
+		Episode e2 = new Episode("Demo Show", 1, 2, "Beta", null, null, null, 2, seriesInfo);
+		Episode e3 = new Episode("Demo Show", 1, 3, "Gamma", null, null, null, 3, seriesInfo);
+
+		MultiEpisode multi = new MultiEpisode(Arrays.asList(e1, e2, e3));
+		MediaBindingBean bean = new MediaBindingBean(multi, new File("Demo.Show.S01E01-03.mkv"));
+
+		String path = bean.getKodiStandardPath().getPath();
+		assertEquals("TV Shows/Demo Show/Season 01/Demo Show - 1x01x02x03 - Alpha & Beta & Gamma", path);
+		assertFalse(path.contains("S01E01-E03"));
+	}
+
+	@Test
+	public void kodiPathForSingleEpisodeUsesSxEAndExpectedFolders() throws Exception {
+		SeriesInfo seriesInfo = new SeriesInfo();
+		seriesInfo.setDatabase("TheTVDB");
+		seriesInfo.setName("Demo Show");
+
+		Episode episode = new Episode("Demo Show", 1, 2, "Pilot", null, null, null, 2, seriesInfo);
+		MediaBindingBean bean = new MediaBindingBean(episode, new File("Demo.Show.S01E02.mkv"));
+
+		assertEquals("TV Shows/Demo Show/Season 01/Demo Show - 1x02 - Pilot", bean.getKodiStandardPath().getPath());
+	}
+}

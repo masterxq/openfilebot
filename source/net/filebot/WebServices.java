@@ -154,12 +154,21 @@ public final class WebServices {
 			Future<List<Movie>> apiSearch = requestThreadPool.submit(() -> TMDbClientWithLocalSearch.super.searchMovie(movieName, movieYear, locale, extendedInfo));
 
 			// the year might be off by 1 so we also check movies from the previous year and the next year
-			Future<List<Movie>> localSearch1 = requestThreadPool.submit(() -> localIndexPerYear.computeIfAbsent(movieYear, this::getLocalIndex).get().search(movieName));
-			Future<List<Movie>> localSearch2 = requestThreadPool.submit(() -> localIndexPerYear.computeIfAbsent(movieYear - 1, this::getLocalIndex).get().search(movieName));
-			Future<List<Movie>> localSearch3 = requestThreadPool.submit(() -> localIndexPerYear.computeIfAbsent(movieYear + 1, this::getLocalIndex).get().search(movieName));
+			Future<List<Movie>> localSearch1 = requestThreadPool.submit(() -> searchMovieLocal(movieYear, movieName));
+			Future<List<Movie>> localSearch2 = requestThreadPool.submit(() -> searchMovieLocal(movieYear - 1, movieName));
+			Future<List<Movie>> localSearch3 = requestThreadPool.submit(() -> searchMovieLocal(movieYear + 1, movieName));
 
 			// combine alias names into a single search results, and keep API search name as primary name
 			return Stream.of(apiSearch.get(), localSearch1.get(), localSearch2.get(), localSearch3.get()).flatMap(List::stream).distinct().collect(toList());
+		}
+
+		private List<Movie> searchMovieLocal(int year, String query) {
+			try {
+				return localIndexPerYear.computeIfAbsent(year, this::getLocalIndex).get().search(query);
+			} catch (Exception e) {
+				debug.log(Level.WARNING, "Failed to load local TMDb index", e);
+				return emptyList();
+			}
 		}
 	}
 

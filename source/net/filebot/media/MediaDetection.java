@@ -855,6 +855,7 @@ public class MediaDetection {
 	}
 
 	private static final ArrayList<IndexEntry<Movie>> movieIndex = new ArrayList<IndexEntry<Movie>>();
+	private static volatile boolean movieIndexInitialized;
 
 	private static <T extends SearchResult> List<IndexEntry<T>> getIndex(Supplier<T[]> function, Function<T, List<IndexEntry<T>>> mapper, ArrayList<IndexEntry<T>> sink) {
 		synchronized (sink) {
@@ -868,14 +869,24 @@ public class MediaDetection {
 	}
 
 	public static List<IndexEntry<Movie>> getMovieIndex() {
-		return getIndex(() -> {
-			try {
-				return releaseInfo.getMovieList();
-			} catch (Exception e) {
-				debug.severe("Failed to load movie index: " + e.getMessage());
-				return new Movie[0];
+		synchronized (movieIndex) {
+			if (!movieIndexInitialized) {
+				Movie[] index;
+
+				try {
+					index = releaseInfo.getMovieList();
+				} catch (Exception e) {
+					debug.severe("Failed to load movie index: " + e.getMessage());
+					index = new Movie[0];
+				}
+
+				movieIndex.ensureCapacity(index.length * 4); // alias names
+				stream(index).map(HighPerformanceMatcher::prepare).forEach(movieIndex::addAll);
+				movieIndexInitialized = true;
 			}
-		}, HighPerformanceMatcher::prepare, movieIndex);
+
+			return movieIndex;
+		}
 	}
 
 	public static List<Movie> matchMovieName(Collection<String> files, boolean strict, int maxStartIndex) {

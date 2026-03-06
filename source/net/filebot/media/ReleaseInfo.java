@@ -15,6 +15,8 @@ import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.text.Collator;
@@ -478,10 +480,29 @@ public class ReleaseInfo {
 
 	protected <A> Resource<A[]> resource(String name, Duration expirationTime, Function<String, A> parse, IntFunction<A[]> generator) {
 		return () -> {
-			Cache cache = Cache.getCache("data", CacheType.Persistent);
-			byte[] bytes = cache.bytes(name, n -> new URL(getProperty(n)), XZInputStream::new).expire(refreshDuration.optional().orElse(expirationTime)).get();
+			String source = getProperty(name);
+			byte[] bytes;
 
-			// all data files are UTF-8 encoded XZ compressed text files
+			if (source.startsWith("disabled:")) {
+				bytes = new byte[0];
+			} else if (source.startsWith("resource:")) {
+				String path = source.substring("resource:".length());
+				if (!path.startsWith("/")) {
+					path = "/" + path;
+				}
+
+				try (InputStream in = ReleaseInfo.class.getResourceAsStream(path)) {
+					if (in == null) {
+						throw new FileNotFoundException(path);
+					}
+					bytes = in.readAllBytes();
+				}
+			} else {
+				Cache cache = Cache.getCache("data", CacheType.Persistent);
+				bytes = cache.bytes(name, n -> new URL(getProperty(n)), XZInputStream::new).expire(refreshDuration.optional().orElse(expirationTime)).get();
+			}
+
+			// data files are UTF-8 encoded text (downloaded resources may be XZ-compressed)
 			Stream<String> lines = NEWLINE.splitAsStream(UTF_8.decode(ByteBuffer.wrap(bytes)));
 
 			return lines.filter(s -> s.length() > 0).map(parse).filter(Objects::nonNull).toArray(generator);

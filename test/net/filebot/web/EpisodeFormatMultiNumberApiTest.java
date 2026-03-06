@@ -4,7 +4,14 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Test;
+
 public class EpisodeFormatMultiNumberApiTest {
+
+	@Test
+	public void pending() throws Exception {
+		runAssertions();
+	}
 
 	public static void runAssertions() throws Exception {
 		EpisodeFormat formatter = EpisodeFormat.SeasonEpisode;

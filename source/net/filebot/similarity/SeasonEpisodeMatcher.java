@@ -27,6 +27,9 @@ public class SeasonEpisodeMatcher {
 	public static final SeasonEpisodeFilter DEFAULT_SANITY = new SeasonEpisodeFilter(50, 50, 1000, 1970, 2100);
 	public static final SeasonEpisodeFilter STRICT_SANITY = new SeasonEpisodeFilter(10, 30, -1, -1, -1);
 
+	private static final Pattern TITLE_YEAR_IN_BRACKETS = compile("\\((19\\d{2}|20\\d{2})\\)");
+	private static final Pattern EXPLICIT_EPISODE_MARKER = compile("(?i)([Ss]\\d{1,4}[\\P{Alnum}]{0,3}(?:[EePp]|ep|episode|part)|\\d{1,2}x\\d{2,3}|\\d{1,2}[.]\\d{2,3}|\\d{1,2}[\\P{Alnum}]{0,3}of[\\P{Alnum}]{0,3}\\d{1,2})");
+
 	private SeasonEpisodeParser[] patterns;
 	private Pattern seasonPattern;
 
@@ -40,12 +43,12 @@ public class SeasonEpisodeMatcher {
 		});
 
 		// match patterns like S01E01-E05
-		S00E00SEQ = new SeasonEpisodePattern(null, "(?<!\\p{Alnum}|[-])[Ss](\\d{1,2}|\\d{4})[Ee](\\d{2,3})[-][Ee](\\d{2,3})(?!\\p{Alnum}|[-])", m -> {
+		S00E00SEQ = new SeasonEpisodePattern(null, "(?<!\\p{Alnum}|[-])[Ss](\\d{4}|\\d{1,2})[Ee](\\d{2,3})[-][Ee](\\d{2,3})(?!\\p{Alnum}|[-])", m -> {
 			return range(m.group(1), m.group(2), m.group(3));
 		});
 
-		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ... s01e01-02-03-04, [s01]_[e01-02-03-04] ...
-		S00E00 = new SeasonEpisodePattern(null, "(?<!\\p{Digit})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}(?i:ep|e|p)(((?<=[^._ ])[Ee]?[Pp]?\\d{1,3}(\\D|$))+)", m -> {
+		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ... s01e01-02-03-04, [s01]_[e01-02-03-04], S01-01, S03-07-08 ...
+		S00E00 = new SeasonEpisodePattern(null, "(?<!\\p{Digit})[Ss](\\d{4}|\\d{1,2})[^\\p{Alnum}]{0,3}(?:(?i:ep|e|p)[^\\p{Alnum}]{0,3})?(((?<=[^._ ])[Ee]?[Pp]?\\d{1,3}(\\D|$))+)", m -> {
 			return multi(m.group(1), m.group(2));
 		});
 
@@ -60,8 +63,8 @@ public class SeasonEpisodeMatcher {
 		});
 
 		// match patterns 1.02, ..., 10.02, ...
-		Dot101 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[.](((?<=[^._ ])\\d{2}(\\D|$))+)", m -> {
-			return multi(m.group(1), m.group(2));
+		Dot101 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[.](\\d{2,3})(?!\\p{Digit})", m -> {
+			return single(m.group(1), m.group(2));
 		});
 
 		// match patterns like 101-105
@@ -80,7 +83,7 @@ public class SeasonEpisodeMatcher {
 		});
 
 		// match patterns like "1 of 2" as Episode 1
-		E1of2 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2})[^._ ]?(?i:of)[^._ ]?(\\d{1,2})(?!\\p{Digit})", m -> {
+		E1of2 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2})[\\P{Alnum}]{0,3}(?i:of)[\\P{Alnum}]{0,3}(\\d{1,2})(?!\\p{Digit})", m -> {
 			return single(null, m.group(1));
 		});
 
@@ -168,11 +171,33 @@ public class SeasonEpisodeMatcher {
 			List<SxE> match = pattern.match(name);
 
 			if (!match.isEmpty()) {
+				if (isBracketedYearFalsePositive(name, match)) {
+					return null;
+				}
 				// current pattern did match
 				return match;
 			}
 		}
 		return null;
+	}
+
+	private boolean isBracketedYearFalsePositive(CharSequence name, List<SxE> match) {
+		String text = name.toString();
+
+		if (EXPLICIT_EPISODE_MARKER.matcher(text).find()) {
+			return false;
+		}
+
+		Matcher year = TITLE_YEAR_IN_BRACKETS.matcher(text);
+		if (!year.find()) {
+			return false;
+		}
+
+		int y = Integer.parseInt(year.group(1));
+		int yearSeason = y / 100;
+		int yearEpisode = y % 100;
+
+		return match.stream().allMatch(sxe -> sxe.season == yearSeason && sxe.episode == yearEpisode);
 	}
 
 	public List<SxE> match(File file) {
