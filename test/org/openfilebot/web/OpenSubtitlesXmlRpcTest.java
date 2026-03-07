@@ -24,15 +24,27 @@ import redstone.xmlrpc.XmlRpcFault;
 public class OpenSubtitlesXmlRpcTest {
 
 	private static OpenSubtitlesXmlRpc xmlrpc = new OpenSubtitlesXmlRpc(String.format("%s %s", getApplicationName(), getApplicationVersion()));
+	private static boolean loginAvailable = false;
 
 	@BeforeClass
 	public static void login() throws Exception {
-		// login manually
-		xmlrpc.loginAnonymous();
+		try {
+			// login manually
+			xmlrpc.loginAnonymous();
+			loginAvailable = true;
+		} catch (Exception e) {
+			loginAvailable = false;
+		}
+	}
+
+	private static void requireLogin() {
+		assumeTrue("OpenSubtitles login unavailable", loginAvailable);
 	}
 
 	@Test
 	public void search() throws Exception {
+		requireLogin();
+
 		List<SubtitleSearchResult> list;
 		try {
 			list = xmlrpc.searchMoviesOnIMDB("babylon 5");
@@ -52,6 +64,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void searchOST() throws Exception {
+		requireLogin();
+
 		List<SubtitleSearchResult> list;
 		try {
 			list = xmlrpc.searchMoviesOnIMDB("Linkin.Park.New.Divide.1280-720p.Transformers.Revenge.of.the.Fallen.ost");
@@ -65,6 +79,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void getSubtitleListEnglish() throws Exception {
+		requireLogin();
+
 		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(singleton(Query.forImdbId(361256, -1, -1, "eng")));
 		assumeFalse(list.isEmpty());
 
@@ -78,6 +94,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void getSubtitleListMovieHash() throws Exception {
+		requireLogin();
+
 		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(singleton(Query.forHash("2bba5c34b007153b", 717565952, "eng")));
 		assumeFalse(list.isEmpty());
 
@@ -90,6 +108,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void tryUploadSubtitles() throws Exception {
+		requireLogin();
+
 		SubFile subtitle = new SubFile();
 		subtitle.setSubFileName("firefly.s01e01.serenity.pilot.dvdrip.xvid.srt");
 		subtitle.setSubHash("6d9c600fb8b07f87ffcf156e4ed308ca");
@@ -106,6 +126,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void checkSubHash() throws Exception {
+		requireLogin();
+
 		Map<String, Integer> subHashMap = xmlrpc.checkSubHash(singleton("e12715f466ee73c86694b7ab9f311285"));
 
 		assertEquals("247060", subHashMap.values().iterator().next().toString());
@@ -114,6 +136,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void checkSubHashInvalid() throws Exception {
+		requireLogin();
+
 		Map<String, Integer> subHashMap = xmlrpc.checkSubHash(singleton("0123456789abcdef0123456789abcdef"));
 
 		assertEquals("0", subHashMap.values().iterator().next().toString());
@@ -122,6 +146,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void checkMovieHash() throws Exception {
+		requireLogin();
+
 		Map<String, Movie> results;
 		try {
 			results = xmlrpc.checkMovieHash(singleton("d7aa0275cace4410"), 0);
@@ -140,6 +166,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void checkMovieHashInvalid() throws Exception {
+		requireLogin();
+
 		Map<String, Movie> results = xmlrpc.checkMovieHash(singleton("0123456789abcdef"), 0);
 
 		// no movie info
@@ -148,6 +176,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void getIMDBMovieDetails() throws Exception {
+		requireLogin();
+
 		Movie movie;
 		try {
 			movie = xmlrpc.getIMDBMovieDetails(371746);
@@ -165,6 +195,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void getIMDBMovieDetailsInvalid() throws Exception {
+		requireLogin();
+
 		try {
 			Movie movie = xmlrpc.getIMDBMovieDetails(0);
 			assertNull(movie);
@@ -175,6 +207,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void detectLanguage() throws Exception {
+		requireLogin();
+
 		String text = "Only those that are prepared to fire should be fired at.";
 
 		List<String> languages = xmlrpc.detectLanguage(text.getBytes("UTF-8"));
@@ -185,6 +219,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void fetchSubtitle() throws Exception {
+		requireLogin();
+
 		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(singleton(Query.forImdbId(361256, -1, -1, "eng")));
 		assumeFalse(list.isEmpty());
 
@@ -210,8 +246,10 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@AfterClass
 	public static void logout() throws Exception {
-		// logout manually
-		xmlrpc.logout();
+		if (loginAvailable) {
+			// logout manually
+			xmlrpc.logout();
+		}
 	}
 
 }
