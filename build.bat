@@ -1,7 +1,6 @@
 @echo off
 cd /D %~dp0
 set PATH=%WIX%\bin;%PATH%
-if defined LAUNCH4J set PATH=%LAUNCH4J%;%PATH%
 
 if not defined JAVA_HOME (set JAVA_HOME=C:\Program Files\Java\jdk-21)
 
