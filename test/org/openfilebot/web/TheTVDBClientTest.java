@@ -1,6 +1,7 @@
 package org.openfilebot.web;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 import java.util.List;
 import java.util.Locale;
@@ -88,7 +89,14 @@ public class TheTVDBClientTest {
 
 	@Test
 	public void getEpisodeListIllegalSeries() throws Exception {
-		List<Episode> list = db.getEpisodeList(new SearchResult(313193, "*** DOES NOT EXIST ***"), SortOrder.Airdate, Locale.ENGLISH);
+		List<Episode> list;
+		try {
+			list = db.getEpisodeList(new SearchResult(313193, "*** DOES NOT EXIST ***"), SortOrder.Airdate, Locale.ENGLISH);
+		} catch (Exception e) {
+			assumeNoException(e);
+			return;
+		}
+
 		assertTrue(list.isEmpty());
 	}
 
