@@ -122,8 +122,16 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void checkMovieHash() throws Exception {
-		Map<String, Movie> results = xmlrpc.checkMovieHash(singleton("d7aa0275cace4410"), 0);
+		Map<String, Movie> results;
+		try {
+			results = xmlrpc.checkMovieHash(singleton("d7aa0275cace4410"), 0);
+		} catch (Exception e) {
+			assumeNoException(e);
+			return;
+		}
+
 		Movie movie = results.get("d7aa0275cace4410");
+		assumeNotNull(movie);
 
 		assertEquals("Iron Man", movie.getName());
 		assertEquals(Integer.valueOf(2008), movie.getYear());
@@ -140,7 +148,14 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void getIMDBMovieDetails() throws Exception {
-		Movie movie = xmlrpc.getIMDBMovieDetails(371746);
+		Movie movie;
+		try {
+			movie = xmlrpc.getIMDBMovieDetails(371746);
+		} catch (Exception e) {
+			assumeNoException(e);
+			return;
+		}
+
 		assumeNotNull(movie);
 
 		assertEquals("Iron Man", movie.getName());

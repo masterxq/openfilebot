@@ -31,6 +31,57 @@ jobs:
       - name: Run tests
         run: ant -lib /usr/share/java/ivy.jar clean resolve test-ci
 
+        - name: Summarize failing tests
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import glob
+          import os
+          import sys
+          import xml.etree.ElementTree as ET
+
+          report_files = sorted(glob.glob('dist/test-reports/TEST-*.xml'))
+          if not report_files:
+            print('No JUnit XML reports found in dist/test-reports')
+            sys.exit(0)
+
+          failures = []
+          for report in report_files:
+            try:
+              root = ET.parse(report).getroot()
+            except Exception as e:
+              failures.append((os.path.basename(report), '(report-parse-error)', str(e).strip()))
+              continue
+
+            suite_name = root.attrib.get('name', os.path.basename(report))
+            for testcase in root.findall('testcase'):
+              test_name = testcase.attrib.get('name', '(unknown)')
+              class_name = testcase.attrib.get('classname', suite_name)
+
+              for tag in ('failure', 'error'):
+                node = testcase.find(tag)
+                if node is not None:
+                  message = (node.attrib.get('message') or (node.text or '')).strip().splitlines()
+                  message = message[0] if message else '(no details)'
+                  failures.append((class_name, test_name, message))
+
+          if failures:
+            print('Detected failing tests:')
+            for class_name, test_name, message in failures:
+              print(f' - {class_name} :: {test_name} :: {message}')
+          else:
+            print('No failing tests found in JUnit XML reports.')
+          PY
+
+        - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openfilebot-test-reports-${{ github.sha }}
+          if-no-files-found: warn
+          path: |
+          dist/test-reports/**
+
       - name: Build fatjar and Debian packages
         run: ant -lib /usr/share/java/ivy.jar fatjar deb
 
