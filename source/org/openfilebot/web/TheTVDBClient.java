@@ -64,7 +64,23 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 	protected Object requestJson(String path, Locale locale, Duration expirationTime) throws Exception {
 		Cache cache = Cache.getCache(locale == null || locale == Locale.ROOT ? getName() : getName() + "_" + locale.getLanguage(), CacheType.Monthly);
-		return cache.json(path, this::getEndpoint).fetch(fetchIfModified(() -> getRequestHeader(locale))).expire(expirationTime).get();
+
+		try {
+			return cache.json(path, this::getEndpoint).fetch(fetchIfModified(() -> getRequestHeader(locale))).expire(expirationTime).get();
+		} catch (Exception e) {
+			if (isResourceNotFound(e) && path.startsWith("series/")) {
+				if (path.contains("/episodes")) {
+					Map<String, Object> payload = new LinkedHashMap<String, Object>(2);
+					payload.put("data", emptyList());
+					payload.put("links", emptyMap());
+					return payload;
+				}
+
+				return singletonMap("data", emptyMap());
+			}
+
+			throw e;
+		}
 	}
 
 	protected URL getEndpoint(String path) throws Exception {
@@ -281,6 +297,17 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		for (Throwable current = e; current != null; current = current.getCause()) {
 			String message = current.getMessage();
 			if (message != null && message.contains("Resource not found") && message.contains(endpoint)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private boolean isResourceNotFound(Throwable e) {
+		for (Throwable current = e; current != null; current = current.getCause()) {
+			String message = current.getMessage();
+			if (message != null && message.contains("Resource not found")) {
 				return true;
 			}
 		}
