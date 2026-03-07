@@ -57,8 +57,18 @@ jobs:
             throw "Unable to locate launch4jc.exe after installing Launch4j"
           }
 
-          "LAUNCH4J_EXE=$launch4jExe" >> $env:GITHUB_ENV
-          Write-Host "Launch4j executable: $launch4jExe"
+          $launch4jHome = Split-Path -Parent $launch4jExe
+          $launch4jRunner = Join-Path $env:RUNNER_TEMP 'launch4j-java.cmd'
+
+          $runnerLines = @(
+            '@echo off',
+            '""%JAVA_HOME%\bin\java.exe"" -cp ""' + $launch4jHome + '\launch4j.jar;' + $launch4jHome + '\lib\*"" net.sf.launch4j.Main %*'
+          )
+          $runnerLines | Set-Content -Path $launch4jRunner -Encoding ASCII
+
+          "LAUNCH4J_EXE=$launch4jRunner" >> $env:GITHUB_ENV
+          Write-Host "Launch4j executable: $launch4jRunner"
+          Write-Host "Launch4j home: $launch4jHome"
 
       - name: Build fatjar and launcher executables
         shell: pwsh
