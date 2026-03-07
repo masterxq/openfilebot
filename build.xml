@@ -996,7 +996,7 @@
 	<target name="test" depends="test-compile" description="Run test suite (may fail while work in progress)">
 		<mkdir dir="${dir.test.report}" />
 
-		<junit printsummary="withOutAndErr" showoutput="yes" fork="yes" forkmode="once" haltonfailure="no" haltonerror="no">
+		<junit printsummary="withOutAndErr" showoutput="yes" fork="yes" forkmode="once" haltonfailure="no" haltonerror="no" timeout="600000">
 			<classpath>
 				<pathelement location="${dir.build}" />
 				<pathelement location="${dir.test.build}" />
@@ -1019,7 +1019,7 @@
 	<target name="test-ci" depends="test-compile" description="Run test suite and fail build on test failures/errors">
 		<mkdir dir="${dir.test.report}" />
 
-		<junit printsummary="withOutAndErr" showoutput="yes" fork="yes" forkmode="once" haltonfailure="yes" haltonerror="yes">
+		<junit printsummary="withOutAndErr" showoutput="yes" fork="yes" forkmode="once" haltonfailure="yes" haltonerror="yes" timeout="600000">
 			<classpath>
 				<pathelement location="${dir.build}" />
 				<pathelement location="${dir.test.build}" />
