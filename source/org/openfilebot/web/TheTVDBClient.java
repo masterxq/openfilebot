@@ -184,83 +184,108 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 	@Override
 	protected SeriesData fetchSeriesData(SearchResult series, SortOrder sortOrder, Locale locale) throws Exception {
-		// fetch series info
-		SeriesInfo info = getSeriesInfo(series, locale);
-		info.setOrder(sortOrder.name());
+		try {
+			// fetch series info
+			SeriesInfo info = getSeriesInfo(series, locale);
+			info.setOrder(sortOrder.name());
 
-		// ignore preferred language if basic series information isn't even available
-		if (info.getName() == null && !locale.equals(DEFAULT_LOCALE)) {
-			return fetchSeriesData(series, sortOrder, DEFAULT_LOCALE);
-		}
-
-		// fetch episode data
-		List<Episode> episodes = new ArrayList<Episode>();
-		List<Episode> specials = new ArrayList<Episode>();
-
-		for (int i = 1, n = 1; i <= n; i++) {
-			Object json = requestJson("series/" + series.getId() + "/episodes?page=" + i, locale, Cache.ONE_DAY);
-
-			Integer lastPage = getInteger(getMap(json, "links"), "last");
-			if (lastPage != null) {
-				n = lastPage;
+			// ignore preferred language if basic series information isn't even available
+			if (info.getName() == null && !locale.equals(DEFAULT_LOCALE)) {
+				return fetchSeriesData(series, sortOrder, DEFAULT_LOCALE);
 			}
 
-			streamJsonObjects(json, "data").forEach(it -> {
-				Integer id = getInteger(it, "id");
-				String episodeName = getString(it, "episodeName");
+			// fetch episode data
+			List<Episode> episodes = new ArrayList<Episode>();
+			List<Episode> specials = new ArrayList<Episode>();
 
-				// default to English episode title if the preferred language is not available
-				if (episodeName == null && !locale.equals(DEFAULT_LOCALE)) {
-					try {
-						episodeName = getEpisodeList(series, sortOrder, DEFAULT_LOCALE).stream().filter(e -> id.equals(e.getId())).findFirst().map(Episode::getTitle).orElse(null);
-					} catch (Exception e) {
-						debug.warning(cause("Failed to retrieve default episode title", e));
+			for (int i = 1, n = 1; i <= n; i++) {
+				Object json = requestJson("series/" + series.getId() + "/episodes?page=" + i, locale, Cache.ONE_DAY);
+
+				Integer lastPage = getInteger(getMap(json, "links"), "last");
+				if (lastPage != null) {
+					n = lastPage;
+				}
+
+				streamJsonObjects(json, "data").forEach(it -> {
+					Integer id = getInteger(it, "id");
+					String episodeName = getString(it, "episodeName");
+
+					// default to English episode title if the preferred language is not available
+					if (episodeName == null && !locale.equals(DEFAULT_LOCALE)) {
+						try {
+							episodeName = getEpisodeList(series, sortOrder, DEFAULT_LOCALE).stream().filter(e -> id.equals(e.getId())).findFirst().map(Episode::getTitle).orElse(null);
+						} catch (Exception e) {
+							debug.warning(cause("Failed to retrieve default episode title", e));
+						}
 					}
-				}
 
-				Integer absoluteNumber = getInteger(it, "absoluteNumber");
-				SimpleDate airdate = getStringValue(it, "firstAired", SimpleDate::parse);
+					Integer absoluteNumber = getInteger(it, "absoluteNumber");
+					SimpleDate airdate = getStringValue(it, "firstAired", SimpleDate::parse);
 
-				// default numbering
-				Integer episodeNumber = getInteger(it, "airedEpisodeNumber");
-				Integer seasonNumber = getInteger(it, "airedSeason");
+					// default numbering
+					Integer episodeNumber = getInteger(it, "airedEpisodeNumber");
+					Integer seasonNumber = getInteger(it, "airedSeason");
 
-				// adjust for forced absolute numbering (if possible)
-				if (sortOrder == SortOrder.DVD) {
-					Integer dvdSeasonNumber = getInteger(it, "dvdSeason");
-					Integer dvdEpisodeNumber = getInteger(it, "dvdEpisodeNumber");
+					// adjust for forced absolute numbering (if possible)
+					if (sortOrder == SortOrder.DVD) {
+						Integer dvdSeasonNumber = getInteger(it, "dvdSeason");
+						Integer dvdEpisodeNumber = getInteger(it, "dvdEpisodeNumber");
 
-					// require both values to be valid integer numbers
-					if (dvdSeasonNumber != null && dvdEpisodeNumber != null) {
-						seasonNumber = dvdSeasonNumber;
-						episodeNumber = dvdEpisodeNumber;
+						// require both values to be valid integer numbers
+						if (dvdSeasonNumber != null && dvdEpisodeNumber != null) {
+							seasonNumber = dvdSeasonNumber;
+							episodeNumber = dvdEpisodeNumber;
+						}
+					} else if (sortOrder == SortOrder.Absolute && absoluteNumber != null && absoluteNumber > 0) {
+						seasonNumber = null;
+						episodeNumber = absoluteNumber;
+					} else if (sortOrder == SortOrder.AbsoluteAirdate && airdate != null) {
+						// use airdate as absolute episode number
+						seasonNumber = null;
+						episodeNumber = airdate.getYear() * 1_00_00 + airdate.getMonth() * 1_00 + airdate.getDay();
 					}
-				} else if (sortOrder == SortOrder.Absolute && absoluteNumber != null && absoluteNumber > 0) {
-					seasonNumber = null;
-					episodeNumber = absoluteNumber;
-				} else if (sortOrder == SortOrder.AbsoluteAirdate && airdate != null) {
-					// use airdate as absolute episode number
-					seasonNumber = null;
-					episodeNumber = airdate.getYear() * 1_00_00 + airdate.getMonth() * 1_00 + airdate.getDay();
-				}
 
-				if (seasonNumber == null || seasonNumber > 0) {
-					// handle as normal episode
-					episodes.add(new Episode(info.getName(), seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, id, new SeriesInfo(info)));
-				} else {
-					// handle as special episode
-					specials.add(new Episode(info.getName(), null, null, episodeName, absoluteNumber, episodeNumber, airdate, id, new SeriesInfo(info)));
-				}
-			});
+					if (seasonNumber == null || seasonNumber > 0) {
+						// handle as normal episode
+						episodes.add(new Episode(info.getName(), seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, id, new SeriesInfo(info)));
+					} else {
+						// handle as special episode
+						specials.add(new Episode(info.getName(), null, null, episodeName, absoluteNumber, episodeNumber, airdate, id, new SeriesInfo(info)));
+					}
+				});
+			}
+
+			// episodes my not be ordered by DVD episode number
+			episodes.sort(episodeComparator());
+
+			// add specials at the end
+			episodes.addAll(specials);
+
+			return new SeriesData(info, episodes);
+		} catch (Exception e) {
+			if (isSeriesNotFound(e, series.getId())) {
+				debug.warning(cause(format("Series not found: %s [%d]", series.getName(), series.getId()), e));
+
+				SeriesInfo info = new SeriesInfo(this, sortOrder, locale, series.getId());
+				info.setName(series.getName());
+				return new SeriesData(info, emptyList());
+			}
+
+			throw e;
+		}
+	}
+
+	private boolean isSeriesNotFound(Exception e, int seriesId) {
+		String endpoint = "https://api.thetvdb.com/series/" + seriesId;
+
+		for (Throwable current = e; current != null; current = current.getCause()) {
+			String message = current.getMessage();
+			if (message != null && message.contains("Resource not found") && message.contains(endpoint)) {
+				return true;
+			}
 		}
 
-		// episodes my not be ordered by DVD episode number
-		episodes.sort(episodeComparator());
-
-		// add specials at the end
-		episodes.addAll(specials);
-
-		return new SeriesData(info, episodes);
+		return false;
 	}
 
 	public SearchResult lookupByID(int id, Locale locale) throws Exception {
