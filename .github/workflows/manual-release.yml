@@ -137,36 +137,26 @@ jobs:
           "RELEASE_VERSION=$tagVersion" >> $env:GITHUB_ENV
           Write-Host "Release version: $tagVersion"
 
-      - name: Install build tools (Ant + WiX + Launch4j)
+      - name: Install build tools (Ant + WiX)
         shell: pwsh
         run: |
-          choco install ant wixtoolset launch4j --no-progress -y
+          choco install ant wixtoolset --no-progress -y
 
-      - name: Resolve Launch4j executable path
+      - name: Build fatjar
         shell: pwsh
         run: |
-          $candidates = @(
-            "$env:ChocolateyInstall\\lib\\launch4j\\tools\\launch4j\\launch4jc.cmd",
-            "${env:ProgramFiles(x86)}\\Launch4j\\launch4jc.cmd",
-            "$env:ProgramFiles\\Launch4j\\launch4jc.cmd"
+          Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/org/apache/ivy/ivy/2.5.2/ivy-2.5.2.jar" -OutFile "ivy.jar"
+          $antArgs = @(
+            '-lib',
+            'ivy.jar',
+            "-Dapplication.version=$env:RELEASE_VERSION",
+            'clean',
+            'resolve',
+            'fatjar'
           )
+          & ant @antArgs
 
-          $launch4jExe = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if (-not $launch4jExe) {
-            $cmd = Get-Command launch4jc.cmd -ErrorAction SilentlyContinue
-            if ($cmd) {
-              $launch4jExe = $cmd.Source
-            }
-          }
-
-          if (-not $launch4jExe) {
-            throw "Unable to locate launch4jc.cmd after installing Launch4j"
-          }
-
-          "LAUNCH4J_EXE=$launch4jExe" >> $env:GITHUB_ENV
-          Write-Host "Launch4j executable: $launch4jExe"
-
-      - name: Build fatjar and MSI installers
+      - name: Build MSI with jpackage
         shell: pwsh
         run: |
           $wixPaths = @(
@@ -179,18 +169,51 @@ jobs:
             }
           }
 
-          Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/org/apache/ivy/ivy/2.5.2/ivy-2.5.2.jar" -OutFile "ivy.jar"
-          $antArgs = @(
-            '-lib',
-            'ivy.jar',
-            "-Dapplication.version=$env:RELEASE_VERSION",
-            "-Dlaunch4j.executable=$env:LAUNCH4J_EXE",
-            'clean',
-            'resolve',
-            'fatjar',
-            'msi'
+          $inputDir = "dist/jpackage-input"
+          New-Item -ItemType Directory -Path $inputDir -Force | Out-Null
+
+          $fatJar = "dist/openfilebot_$env:RELEASE_VERSION.jar"
+          if (-not (Test-Path $fatJar)) {
+            throw "Fat JAR not found: $fatJar"
+          }
+
+          Copy-Item $fatJar "$inputDir/openfilebot.jar" -Force
+          Copy-Item "installer/msi/logging.properties" $inputDir -Force
+          Copy-Item "lib/native/win32-x64/MediaInfo.dll" $inputDir -Force
+          Copy-Item "lib/native/win32-x64/fpcalc.exe" $inputDir -Force
+          Copy-Item "lib/native/win32-x64/jnidispatch.dll" $inputDir -Force
+          Copy-Item "lib/native/win32-x64/7-Zip-JBinding.dll" $inputDir -Force
+
+          $jpackageArgs = @(
+            '--type', 'msi',
+            '--name', 'OpenFileBot',
+            '--dest', 'dist',
+            '--input', $inputDir,
+            '--main-jar', 'openfilebot.jar',
+            '--main-class', 'org.openfilebot.Main',
+            '--icon', 'installer/icons/shortcut.ico',
+            '--app-version', $env:RELEASE_VERSION,
+            '--vendor', 'MasterxQ',
+            '--description', 'OpenFileBot media renamer',
+            '--java-options', '-Dapplication.deployment=msi',
+            '--java-options', '-Djava.net.useSystemProxies=true',
+            '--java-options', '-DuseNativeShell=false',
+            '--java-options', '-DuseExtendedFileAttributes=true',
+            '--java-options', '-DuseCreationDate=false',
+            '--java-options', '-Dorg.openfilebot.AcoustID.fpcalc=$APPDIR\\fpcalc.exe',
+            '--java-options', '-Djna.library.path=$APPDIR',
+            '--java-options', '-Djna.boot.library.path=$APPDIR',
+            '--java-options', '-Djava.library.path=$APPDIR',
+            '--java-options', '-Djna.nosys=true',
+            '--java-options', '-Djna.nounpack=true',
+            '--java-options', '-Djava.util.logging.config.file=$APPDIR\\logging.properties',
+            '--win-menu',
+            '--win-shortcut',
+            '--win-dir-chooser',
+            '--win-per-user-install'
           )
-          & ant @antArgs
+
+          & jpackage @jpackageArgs
 
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
