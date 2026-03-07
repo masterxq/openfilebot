@@ -62,7 +62,8 @@ jobs:
 
           $runnerLines = @(
             '@echo off',
-            '""%JAVA_HOME%\bin\java.exe"" -cp ""' + $launch4jHome + '\launch4j.jar;' + $launch4jHome + '\lib\*"" net.sf.launch4j.Main %*'
+            'set "L4J_HOME=' + $launch4jHome + '"',
+            '"%JAVA_HOME%\bin\java.exe" -cp "%L4J_HOME%\launch4j.jar;%L4J_HOME%\lib\*" net.sf.launch4j.Main %*'
           )
           $runnerLines | Set-Content -Path $launch4jRunner -Encoding ASCII
 
