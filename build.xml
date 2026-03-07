@@ -19,6 +19,7 @@
 	<!-- define output paths -->
 	<property name="dir.cache" location="${basedir}/cache" />
 	<property name="launch4j.executable" value="launch4jc" />
+	<property name="launch4j.args" value="" />
 
 
 	<!-- timestamp variables -->
@@ -882,12 +883,15 @@
 		<copy file="${path.fatjar}" tofile="${dir.installer}/msi/openfilebot.jar" overwrite="yes" />
 
 		<exec executable="${launch4j.executable}" dir="${dir.installer}/msi" failonerror="true">
+			<arg line="${launch4j.args}" />
 			<arg line="filebot-launch4j.xml" />
 		</exec>
 		<exec executable="${launch4j.executable}" dir="${dir.installer}/msi" failonerror="true">
+			<arg line="${launch4j.args}" />
 			<arg line="filebot-platform-launch4j.xml" />
 		</exec>
 		<exec executable="${launch4j.executable}" dir="${dir.installer}/msi" failonerror="true">
+			<arg line="${launch4j.args}" />
 			<arg line="filebot-cmd-launch4j.xml" />
 		</exec>
 
@@ -897,9 +901,11 @@
 
 	<target name="launch4j-appx" description="Build Windows launcher executables for APPX" depends="fatjar">
 		<exec executable="${launch4j.executable}" dir="${dir.installer}/appx" failonerror="true">
+			<arg line="${launch4j.args}" />
 			<arg line="filebot.launcher.l4j.xml" />
 		</exec>
 		<exec executable="${launch4j.executable}" dir="${dir.installer}/appx" failonerror="true">
+			<arg line="${launch4j.args}" />
 			<arg line="filebot.l4j.xml" />
 		</exec>
 	</target>
@@ -909,6 +915,7 @@
 		<copy file="${path.fatjar}" tofile="${dir.installer}/portable/openfilebot.jar" overwrite="yes" />
 
 		<exec executable="${launch4j.executable}" dir="${dir.installer}/portable" failonerror="true">
+			<arg line="${launch4j.args}" />
 			<arg line="filebot-portable-launch4j.xml" />
 		</exec>
 
