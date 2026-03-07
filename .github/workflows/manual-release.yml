@@ -146,14 +146,20 @@ jobs:
         shell: pwsh
         run: |
           $candidates = @(
+            "$env:ChocolateyInstall\\lib\\launch4j\\tools\\launch4j\\launch4jc.cmd",
             "$env:ChocolateyInstall\\lib\\launch4j\\tools\\launch4j\\launch4jc.exe",
+            "${env:ProgramFiles(x86)}\\Launch4j\\launch4jc.cmd",
             "${env:ProgramFiles(x86)}\\Launch4j\\launch4jc.exe",
+            "$env:ProgramFiles\\Launch4j\\launch4jc.cmd",
             "$env:ProgramFiles\\Launch4j\\launch4jc.exe"
           )
 
           $launch4jExe = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
           if (-not $launch4jExe) {
-            $cmd = Get-Command launch4jc.exe -ErrorAction SilentlyContinue
+            $cmd = Get-Command launch4jc.cmd -ErrorAction SilentlyContinue
+            if (-not $cmd) {
+              $cmd = Get-Command launch4jc.exe -ErrorAction SilentlyContinue
+            }
             if ($cmd) {
               $launch4jExe = $cmd.Source
             }
