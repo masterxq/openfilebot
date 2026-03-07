@@ -29,7 +29,7 @@
 				<Directory Id='INSTALLDIR' Name='@{application.name}'>
 
 					<Component Id='ApplicationStub' Guid='A7B21026-DA54-4AF8-9227-188565AB9C4E' Win64="$(var.Win64)">
-						<File Id='openfilebot.launcher.exe' Name='openfilebot.launcher.exe' Source='filebot.launcher.exe' KeyPath='yes'>
+						<File Id='openfilebot.launcher.exe' Name='openfilebot.launcher.exe' Source='openfilebot.launcher.exe' KeyPath='yes'>
 							<Shortcut Id="shortcut.menu.filebot" Directory="ProgramMenuDir" Name="@{application.name}" Description="@{package.synopsis}" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no">
 								<ShortcutProperty Key="System.AppUserModel.ID" Value="@{application.name}" />
 							</Shortcut>
@@ -40,7 +40,7 @@
 								<ShortcutProperty Key="System.AppUserModel.ID" Value="@{application.name}" />
 							</Shortcut>
 						</File>
-						<File Id='openfilebot.platform.launcher.exe' Name='openfilebot.platform.launcher.exe' Source='filebot.platform.launcher.exe'>
+						<File Id='openfilebot.platform.launcher.exe' Name='openfilebot.platform.launcher.exe' Source='openfilebot.platform.launcher.exe'>
 							<Shortcut Id="shortcut.menu.filebot.platform" Directory="ProgramMenuDir" Name="OpenFileBot (platform)" Description="Launch OpenFileBot with platform-independent configuration" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="no" />
 						</File>
 						<File Id='openfilebot.launcher.l4j.ini' Name='openfilebot.launcher.l4j.ini' Source='openfilebot.launcher.l4j.ini' />
@@ -49,7 +49,7 @@
 					</Component>
 
 					<Component Id='ApplicationStubCmd' Guid='D2B1A845-3B5C-4B59-B0D0-A4E80C173220' Win64="$(var.Win64)">
-						<File Id='openfilebot.exe' Name='openfilebot.exe' Source='filebot.exe' KeyPath='yes'>
+						<File Id='openfilebot.exe' Name='openfilebot.exe' Source='openfilebot.exe' KeyPath='yes'>
 							<Shortcut Id="shortcut.menu.filebot.cmd" Directory="ProgramMenuDir" Name="OpenFileBot (console)" Description="Launch OpenFileBot with debug logging" WorkingDirectory='INSTALLDIR' />
 						</File>
 						<File Id='openfilebot.l4j.ini' Name='openfilebot.l4j.ini' Source='openfilebot.l4j.ini' />

@@ -18,6 +18,7 @@
 
 	<!-- define output paths -->
 	<property name="dir.cache" location="${basedir}/cache" />
+	<property name="launch4j.executable" value="launch4jc" />
 
 
 	<!-- timestamp variables -->
@@ -726,7 +727,7 @@
 	</target>
 
 
-	<target name="appx" description="Build Windows 10 package" depends="revision">
+	<target name="appx" description="Build Windows 10 package" depends="revision, launch4j-appx">
 		<antcall target="appx-arch">
 			<param name="arch" value="x64" />
 			<param name="arch.env" value="AMD64" />
@@ -785,7 +786,7 @@
 	</target>
 
 
-	<target name="msi" description="Build Windows Installer packages" depends="revision">
+	<target name="msi" description="Build Windows Installer packages" depends="revision, launch4j-msi">
 		<antcall target="msi-arch">
 			<param name="arch" value="x64" />
 		</antcall>
@@ -820,7 +821,7 @@
 	</target>
 
 
-	<target name="portable" description="Build portable package" depends="revision">
+	<target name="portable" description="Build portable package" depends="revision, launch4j-portable">
 		<tar destfile="${dir.dist}/${release}-portable.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
 			<tarfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
@@ -875,6 +876,47 @@
 			<codesign secring="${dir.installer}/gpg/secring.gpg" keyid="${gpg.key}" password="${gpg.pwd}" />
 		</spk>
 	</target>
+
+
+	<target name="launch4j-msi" description="Build Windows launcher executables for MSI" depends="fatjar">
+		<copy file="${path.fatjar}" tofile="${dir.installer}/msi/openfilebot.jar" overwrite="yes" />
+
+		<exec executable="${launch4j.executable}" dir="${dir.installer}/msi" failonerror="true">
+			<arg line="filebot-launch4j.xml" />
+		</exec>
+		<exec executable="${launch4j.executable}" dir="${dir.installer}/msi" failonerror="true">
+			<arg line="filebot-platform-launch4j.xml" />
+		</exec>
+		<exec executable="${launch4j.executable}" dir="${dir.installer}/msi" failonerror="true">
+			<arg line="filebot-cmd-launch4j.xml" />
+		</exec>
+
+		<delete file="${dir.installer}/msi/openfilebot.jar" quiet="true" />
+	</target>
+
+
+	<target name="launch4j-appx" description="Build Windows launcher executables for APPX" depends="fatjar">
+		<exec executable="${launch4j.executable}" dir="${dir.installer}/appx" failonerror="true">
+			<arg line="filebot.launcher.l4j.xml" />
+		</exec>
+		<exec executable="${launch4j.executable}" dir="${dir.installer}/appx" failonerror="true">
+			<arg line="filebot.l4j.xml" />
+		</exec>
+	</target>
+
+
+	<target name="launch4j-portable" description="Build Windows launcher executable for portable package" depends="fatjar">
+		<copy file="${path.fatjar}" tofile="${dir.installer}/portable/openfilebot.jar" overwrite="yes" />
+
+		<exec executable="${launch4j.executable}" dir="${dir.installer}/portable" failonerror="true">
+			<arg line="filebot-portable-launch4j.xml" />
+		</exec>
+
+		<delete file="${dir.installer}/portable/openfilebot.jar" quiet="true" />
+	</target>
+
+
+	<target name="launch4j-all" description="Build all Windows launcher executables" depends="launch4j-msi, launch4j-appx, launch4j-portable" />
 
 
 	<target name="build" depends="revision">
