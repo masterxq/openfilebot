@@ -30,6 +30,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.UIManager;
 
 import org.openfilebot.Language;
 import org.openfilebot.ResourceManager;
@@ -78,7 +79,7 @@ public class SubtitleUploadDialog extends JDialog {
 		table.setRowHeight(28);
 		table.setIntercellSpacing(new Dimension(5, 5));
 
-		table.setBackground(Color.white);
+		table.setBackground(UIManager.getColor("Table.background") != null ? UIManager.getColor("Table.background") : Color.white);
 		table.setAutoCreateRowSorter(true);
 		table.setFillsViewportHeight(true);
 

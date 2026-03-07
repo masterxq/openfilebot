@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 import javax.swing.Icon;
 
-public class TMDbTVClient extends AbstractEpisodeListProvider {
+public class TMDbTVClient extends AbstractEpisodeListProvider implements ArtworkProvider {
 
 	private final TMDbClient tmdb;
 
@@ -78,6 +78,8 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 			Integer id = getInteger(it, "id");
 			String name = getString(it, "name");
 			String originalName = getString(it, "original_name");
+			SimpleDate firstAirDate = getStringValue(it, "first_air_date", SimpleDate::parse);
+			Integer year = firstAirDate == null ? null : firstAirDate.getYear();
 
 			if (name == null) {
 				name = originalName;
@@ -89,7 +91,7 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 
 			String[] alternativeTitles = tmdb.getAlternativeTitles("tv/" + id, "results", name, originalName, extendedInfo);
 
-			return new SearchResult(id, name, alternativeTitles);
+			return new SearchResult(id, name, alternativeTitles, year);
 		}).filter(Objects::nonNull).collect(toList());
 	}
 
@@ -143,6 +145,21 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 		episodes.addAll(specials);
 
 		return new SeriesData(info, episodes);
+	}
+
+	@Override
+	public List<Artwork> getArtwork(int id, String category, Locale locale) throws Exception {
+		String tmdbCategory = "poster".equalsIgnoreCase(category) ? "posters" : category;
+		Object images = tmdb.request("tv/" + id + "/images", emptyMap(), Locale.ROOT);
+
+		return streamJsonObjects(images, tmdbCategory).map(it -> {
+			java.net.URL image = getStringValue(it, "file_path", tmdb::resolveImage);
+			String width = getString(it, "width");
+			String height = getString(it, "height");
+			Locale language = getStringValue(it, "iso_639_1", Locale::new);
+
+			return new Artwork(Stream.of(tmdbCategory, String.join("x", width, height)), image, language, null);
+		}).sorted(Artwork.RATING_ORDER).collect(toList());
 	}
 
 }

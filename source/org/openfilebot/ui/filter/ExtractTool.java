@@ -25,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
@@ -56,8 +57,7 @@ class ExtractTool extends Tool<TableModel> {
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-		table.setBackground(Color.white);
-		table.setGridColor(new Color(0xEEEEEE));
+		table.setGridColor(UIManager.getColor("Table.gridColor") != null ? UIManager.getColor("Table.gridColor") : new Color(0xEEEEEE));
 		table.setRowHeight(25);
 
 		JScrollPane tableScrollPane = new JScrollPane(table);

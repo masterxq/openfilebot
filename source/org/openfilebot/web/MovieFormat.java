@@ -30,8 +30,9 @@ public class MovieFormat extends Format {
 		sb.append(movie.getName());
 
 		if (includeYear) {
-			if (!smart || movie.getYear() > 0) {
-				sb.append(' ').append('(').append(movie.getYear()).append(')');
+			Integer year = movie.getYear();
+			if (year != null && (!smart || year > 0)) {
+				sb.append(' ').append('(').append(year).append(')');
 			}
 		}
 

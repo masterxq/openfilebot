@@ -7,6 +7,7 @@ import static org.openfilebot.CachedResource.*;
 import static org.openfilebot.Logging.*;
 
 import java.io.InputStream;
+import java.io.InvalidClassException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.List;
@@ -69,7 +70,11 @@ public class Cache {
 		try {
 			return getElementValue(cache.get(key));
 		} catch (Exception e) {
-			debug.warning(format("Cache get: %s => %s", key, e));
+			if (isInvalidClassException(e)) {
+				remove(key);
+			} else {
+				debug.warning(format("Cache get: %s => %s", key, e));
+			}
 		}
 		return null;
 	}
@@ -83,7 +88,11 @@ public class Cache {
 				return getElementValue(element);
 			}
 		} catch (Exception e) {
-			debug.warning(format("Cache computeIf: %s => %s", key, e));
+			if (isInvalidClassException(e)) {
+				remove(key);
+			} else {
+				debug.warning(format("Cache computeIf: %s => %s", key, e));
+			}
 		}
 
 		// compute if absent
@@ -100,8 +109,27 @@ public class Cache {
 		try {
 			cache.put(createElement(key, value));
 		} catch (Exception e) {
-			debug.warning(format("Cache put: %s => %s", key, e));
+			if (isInvalidClassException(e)) {
+				try {
+					remove(key);
+					cache.put(createElement(key, value));
+					return;
+				} catch (Exception retryError) {
+					debug.warning(format("Cache put: %s => %s", key, retryError));
+				}
+			} else {
+				debug.warning(format("Cache put: %s => %s", key, e));
+			}
 		}
+	}
+
+	private boolean isInvalidClassException(Throwable error) {
+		for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+			if (cause instanceof InvalidClassException) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	protected Object getElementValue(Element element) {

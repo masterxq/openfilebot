@@ -1,6 +1,7 @@
 package org.openfilebot.web;
 
 import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static org.openfilebot.util.JsonUtilities.*;
 import static org.openfilebot.web.WebRequest.*;
@@ -10,6 +11,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import javax.swing.Icon;
 
@@ -17,7 +19,7 @@ import org.openfilebot.Cache;
 import org.openfilebot.CacheType;
 import org.openfilebot.ResourceManager;
 
-public class TVMazeClient extends AbstractEpisodeListProvider {
+public class TVMazeClient extends AbstractEpisodeListProvider implements ArtworkProvider {
 
 	@Override
 	public String getIdentifier() {
@@ -113,6 +115,39 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
 		return URI.create("http://www.tvmaze.com/shows/" + searchResult.getId());
+	}
+
+	@Override
+	public List<Artwork> getArtwork(int id, String category, Locale locale) throws Exception {
+		if (!"poster".equalsIgnoreCase(category) && !"posters".equalsIgnoreCase(category)) {
+			return emptyList();
+		}
+
+		Object response = request("shows/" + id);
+		Object image = getMap(response, "image");
+
+		URL poster = getImageURL(getString(image, "medium"));
+		if (poster == null) {
+			poster = getImageURL(getString(image, "original"));
+		}
+
+		if (poster == null) {
+			return emptyList();
+		}
+
+		return singletonList(new Artwork(Stream.of("poster"), poster, locale, null));
+	}
+
+	private URL getImageURL(String url) {
+		if (url == null || url.isEmpty()) {
+			return null;
+		}
+
+		try {
+			return new URL(url);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 }

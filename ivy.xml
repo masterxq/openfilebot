@@ -20,6 +20,9 @@
 		<dependency rev="59.1" org="com.ibm.icu" name="icu4j" />
 		<dependency rev="3.4.1" org="com.formdev" name="flatlaf" />
 		<dependency rev="3.4.1" org="com.formdev" name="flatlaf-extras" />
+		<dependency rev="12.3.1" org="org.kordamp.ikonli" name="ikonli-core" />
+		<dependency rev="12.3.1" org="org.kordamp.ikonli" name="ikonli-swing" />
+		<dependency rev="12.3.1" org="org.kordamp.ikonli" name="ikonli-materialdesign2-pack" />
 		<dependency rev="1.21.1" org="org.jsoup" name="jsoup" />
 		<dependency rev="1.10" org="org.tukaani" name="xz" />
 		<dependency rev="2.3.0" org="javax.xml.bind" name="jaxb-api" />

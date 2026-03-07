@@ -39,6 +39,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingWorker;
@@ -122,7 +123,7 @@ class BindingDialog extends JDialog {
 		table.setAutoCreateRowSorter(true);
 		table.setAutoCreateColumnsFromModel(true);
 		table.setFillsViewportHeight(true);
-		table.setBackground(Color.white);
+		table.setBackground(UIManager.getColor("Table.background") != null ? UIManager.getColor("Table.background") : Color.white);
 
 		table.setDefaultRenderer(Future.class, new DefaultTableCellRenderer() {
 
@@ -264,8 +265,8 @@ class BindingDialog extends JDialog {
 					table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 					table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-					table.setBackground(Color.white);
-					table.setGridColor(new Color(0xEEEEEE));
+					table.setBackground(UIManager.getColor("Table.background") != null ? UIManager.getColor("Table.background") : Color.white);
+					table.setGridColor(UIManager.getColor("Table.gridColor") != null ? UIManager.getColor("Table.gridColor") : new Color(0xEEEEEE));
 					table.setRowHeight(25);
 
 					// set media info exclude filter

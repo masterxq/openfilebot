@@ -149,7 +149,8 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 			if (info != null) {
 				String name = info.getName();
 				String[] aliasNames = info.getOriginalName() == null || info.getOriginalName().isEmpty() || info.getOriginalName().equals(name) ? new String[0] : new String[] { info.getOriginalName() };
-				int year = info.getReleased() != null ? info.getReleased().getYear() : id.getYear();
+				Integer fallbackYear = id.getYear();
+				Integer year = info.getReleased() != null ? info.getReleased().getYear() : fallbackYear;
 				int tmdbid = info.getId();
 				int imdbid = info.getImdbId() != null ? info.getImdbId() : 0;
 				return new Movie(name, aliasNames, year, imdbid, tmdbid, locale);

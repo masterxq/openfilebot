@@ -20,7 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 import javax.swing.Icon;
 
 import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -212,25 +215,27 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	 * This method is overridden in {@link org.openfilebot.WebServices.AnidbClientWithLocalSearch} to fetch the Anime Index from our own host and not anidb.net
 	 */
 	public SearchResult[] getAnimeTitles() throws Exception {
-		// get data file (unzip and cache)
-		byte[] bytes = getCache("root").bytes("anime-titles.dat.gz", n -> new URL("http://anidb.net/api/" + n)).get();
+		try {
+			byte[] bytes = getCache("root").bytes("anime-titles.dat.gz", n -> new URL("http://anidb.net/api/" + n)).get();
+			SearchResult[] result = parseAnimeTitlesDat(bytes);
+			if (result.length > 0) {
+				return result;
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, "Failed to load AniDB titles from anidb.net", e);
+		}
 
-		// <aid>|<type>|<language>|<title>
-		// type: 1=primary title (one per anime), 2=synonyms (multiple per anime), 3=shorttitles (multiple per anime), 4=official title (one per language)
+		byte[] fallback = getCache("root").bytes("anime-titles-fallback.xml", n -> new URL("https://raw.githubusercontent.com/Anime-Lists/anime-lists/master/animetitles.xml")).get();
+		SearchResult[] result = parseAnimeTitlesXml(fallback);
+		if (result.length > 0) {
+			return result;
+		}
+
+		throw new IllegalStateException("AniDB title index is unavailable");
+	}
+
+	private SearchResult[] parseAnimeTitlesDat(byte[] bytes) throws Exception {
 		Pattern pattern = Pattern.compile("^(?!#)(\\d+)[|](\\d)[|]([\\w-]+)[|](.+)$");
-
-		List<String> languageOrder = new ArrayList<String>();
-		languageOrder.add("x-jat");
-		languageOrder.add("en");
-		languageOrder.add("ja");
-
-		List<String> typeOrder = new ArrayList<String>();
-		typeOrder.add("1");
-		typeOrder.add("4");
-		typeOrder.add("2");
-		typeOrder.add("3");
-
-		// fetch data
 		Map<Integer, List<Object[]>> entriesByAnime = new HashMap<Integer, List<Object[]>>(65536);
 
 		try (BufferedReader text = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes), UTF_8))) {
@@ -243,21 +248,92 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 					String language = matcher.group(3);
 					String title = matcher.group(4);
 
-					if (aid > 0 && title.length() > 0 && typeOrder.contains(type) && languageOrder.contains(language)) {
-						// resolve HTML entities
-						title = Jsoup.parse(title).text();
+					if (aid > 0 && title.length() > 0) {
+						Integer typeOrder = getTypeOrder(type);
+						Integer languageOrder = getLanguageOrder(language);
 
-						if (type.equals("3") && (title.length() < 5 || !Character.isUpperCase(title.charAt(0)) || Character.isUpperCase(title.charAt(title.length() - 1)))) {
-							return;
+						if (typeOrder != null && languageOrder != null) {
+							title = Jsoup.parse(title).text();
+
+							if ("3".equals(type) && (title.length() < 5 || !Character.isUpperCase(title.charAt(0)) || Character.isUpperCase(title.charAt(title.length() - 1)))) {
+								return;
+							}
+
+							entriesByAnime.computeIfAbsent(aid, k -> new ArrayList<Object[]>()).add(new Object[] { typeOrder, languageOrder, title });
 						}
-
-						entriesByAnime.computeIfAbsent(aid, k -> new ArrayList<Object[]>()).add(new Object[] { typeOrder.indexOf(type), languageOrder.indexOf(language), title });
 					}
 				}
 			});
 		}
 
-		// build up a list of all possible AniDB search results
+		return buildSearchResults(entriesByAnime);
+	}
+
+	private SearchResult[] parseAnimeTitlesXml(byte[] bytes) throws Exception {
+		Map<Integer, List<Object[]>> entriesByAnime = new HashMap<Integer, List<Object[]>>(65536);
+		org.jsoup.nodes.Document xml = Jsoup.parse(new ByteArrayInputStream(bytes), UTF_8.name(), "", Parser.xmlParser());
+
+		for (org.jsoup.nodes.Element anime : xml.select("animetitles > anime[aid]")) {
+			int aid;
+			try {
+				aid = Integer.parseInt(anime.attr("aid"));
+			} catch (Exception e) {
+				continue;
+			}
+
+			for (org.jsoup.nodes.Element titleNode : anime.select("title[type]")) {
+				String type = titleNode.attr("type");
+				String language = titleNode.hasAttr("xml:lang") ? titleNode.attr("xml:lang") : titleNode.attr("lang");
+				String title = titleNode.text();
+
+				if (aid > 0 && title != null && title.length() > 0) {
+					Integer typeOrder = getTypeOrder(type);
+					Integer languageOrder = getLanguageOrder(language);
+
+					if (typeOrder != null && languageOrder != null) {
+						if ("short".equalsIgnoreCase(type) && (title.length() < 5 || !Character.isUpperCase(title.charAt(0)) || Character.isUpperCase(title.charAt(title.length() - 1)))) {
+							continue;
+						}
+
+						entriesByAnime.computeIfAbsent(aid, k -> new ArrayList<Object[]>()).add(new Object[] { typeOrder, languageOrder, title });
+					}
+				}
+			}
+		}
+
+		return buildSearchResults(entriesByAnime);
+	}
+
+	private Integer getLanguageOrder(String language) {
+		if ("x-jat".equals(language)) {
+			return 0;
+		}
+		if ("en".equals(language)) {
+			return 1;
+		}
+		if ("ja".equals(language)) {
+			return 2;
+		}
+		return null;
+	}
+
+	private Integer getTypeOrder(String type) {
+		if ("1".equals(type) || "main".equalsIgnoreCase(type)) {
+			return 0;
+		}
+		if ("4".equals(type) || "official".equalsIgnoreCase(type)) {
+			return 1;
+		}
+		if ("2".equals(type) || "syn".equalsIgnoreCase(type) || "synonym".equalsIgnoreCase(type)) {
+			return 2;
+		}
+		if ("3".equals(type) || "short".equalsIgnoreCase(type) || "shorttitle".equalsIgnoreCase(type)) {
+			return 3;
+		}
+		return null;
+	}
+
+	private SearchResult[] buildSearchResults(Map<Integer, List<Object[]>> entriesByAnime) {
 		return entriesByAnime.entrySet().stream().map(it -> {
 			List<String> names = it.getValue().stream().sorted((a, b) -> {
 				for (int i = 0; i < a.length; i++) {
@@ -266,12 +342,16 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 					}
 				}
 				return 0;
-			}).map(n -> n[2].toString()).collect(toList());
+			}).map(n -> n[2].toString()).distinct().collect(toList());
+
+			if (names.isEmpty()) {
+				return null;
+			}
 
 			String primaryTitle = names.get(0);
 			List<String> aliasNames = names.subList(1, names.size());
 			return new SearchResult(it.getKey(), primaryTitle, aliasNames);
-		}).toArray(SearchResult[]::new);
+		}).filter(Objects::nonNull).toArray(SearchResult[]::new);
 	}
 
 }

@@ -2,10 +2,14 @@
 
 ## 0.9.3
 
+- Migrated the codebase namespace from `net.filebot` to `org.openfilebot` and cleaned up launcher/resource wiring across build and installer configurations.
+- Prepared the next release by embedding media resources, improving matching behavior, and simplifying / cleaning up web API integrations.
+- Updated rename bindings and expanded automated tests to improve compatibility and reduce regressions.
+- Ongoing local work includes additional UI and web-service refinements for the next release.
 - Fixed rename history loading on modern Java runtimes by bundling the required JAXB runtime classes into the executable package.
 - Changed default user data location for OpenFileBot to `~/.openfilebot` (instead of sharing `~/.filebot`).
 - Added one-time history migration: if OpenFileBot has no own `history.xml`, it imports legacy FileBot history from `~/.filebot/history.xml`.
-- Added safe migration validation: malformed legacy history files are detected and skipped without crashing the application.
+- Added safe migration validation: malformed legacy history files are detected and skipped.
 
 ## 0.9.2
 

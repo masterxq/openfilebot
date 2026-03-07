@@ -59,6 +59,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
+import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -111,8 +112,10 @@ class HistoryDialog extends JDialog {
 
 		JPanel header = new JPanel(new MigLayout("insets dialog, nogrid, fillx"));
 
-		header.setBackground(Color.white);
-		header.setBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
+		Color panelBackground = UIManager.getColor("Panel.background") != null ? UIManager.getColor("Panel.background") : Color.white;
+		Color separatorColor = UIManager.getColor("Separator.foreground") != null ? UIManager.getColor("Separator.foreground") : new Color(0xACACAC);
+		header.setBackground(panelBackground);
+		header.setBorder(new SeparatorBorder(1, separatorColor, separatorColor, GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
 
 		header.add(title, "wrap");
 		header.add(infoLabel, "gap indent*2, wrap");
@@ -288,7 +291,7 @@ class HistoryDialog extends JDialog {
 
 	private JTable createTable(TableModel model) {
 		JTable table = new JTable(model);
-		table.setBackground(Color.white);
+		table.setBackground(UIManager.getColor("Table.background") != null ? UIManager.getColor("Table.background") : Color.white);
 		table.setAutoCreateRowSorter(true);
 		table.setFillsViewportHeight(true);
 

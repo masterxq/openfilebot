@@ -557,7 +557,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				return getTimeStamp(e.getAirdate());
 			} else if (object instanceof Movie) {
 				Movie m = (Movie) object;
-				return getTimeStamp(new SimpleDate(m.getYear(), 1, 1));
+				Integer year = m.getYear();
+				return year == null ? -1 : getTimeStamp(new SimpleDate(year, 1, 1));
 			} else if (object instanceof File) {
 				File file = (File) object;
 				return getTimeStamp(file);

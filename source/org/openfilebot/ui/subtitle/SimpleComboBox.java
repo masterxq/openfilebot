@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.UIManager;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.plaf.basic.ComboPopup;
@@ -56,12 +57,21 @@ public class SimpleComboBox extends JComboBox {
 				protected void configurePopup() {
 					super.configurePopup();
 
+					Color popupBackground = UIManager.getColor("ComboBox.background");
+					if (popupBackground == null) {
+						popupBackground = Color.white;
+					}
+
 					setOpaque(true);
-					list.setBackground(Color.white);
-					setBackground(Color.white);
+					list.setBackground(popupBackground);
+					setBackground(popupBackground);
 
 					// use gray instead of black border for combobox popup
-					setBorder(createCompoundBorder(createLineBorder(Color.gray, 1), createEmptyBorder(1, 1, 1, 1)));
+					Color borderColor = UIManager.getColor("Component.borderColor");
+					if (borderColor == null) {
+						borderColor = Color.gray;
+					}
+					setBorder(createCompoundBorder(createLineBorder(borderColor, 1), createEmptyBorder(1, 1, 1, 1)));
 				}
 			};
 		}

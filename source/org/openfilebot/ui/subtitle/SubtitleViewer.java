@@ -35,6 +35,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
@@ -60,7 +61,7 @@ public class SubtitleViewer extends JFrame {
 	private final JTextField filterEditor = createFilterEditor();
 
 	private Color defaultFilterForeground = filterEditor.getForeground();
-	private Color disabledFilterForeground = Color.lightGray;
+	private Color disabledFilterForeground = UIManager.getColor("Label.disabledForeground") != null ? UIManager.getColor("Label.disabledForeground") : Color.lightGray;
 
 	public SubtitleViewer(String title) {
 		super(title);
@@ -71,8 +72,10 @@ public class SubtitleViewer extends JFrame {
 
 		JPanel header = new JPanel(new MigLayout("insets dialog, nogrid, novisualpadding, fillx"));
 
-		header.setBackground(Color.white);
-		header.setBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
+		Color panelBackground = UIManager.getColor("Panel.background") != null ? UIManager.getColor("Panel.background") : Color.white;
+		Color separatorColor = UIManager.getColor("Separator.foreground") != null ? UIManager.getColor("Separator.foreground") : new Color(0xACACAC);
+		header.setBackground(panelBackground);
+		header.setBorder(new SeparatorBorder(1, separatorColor, separatorColor, GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
 
 		header.add(titleLabel, "wrap, h pref!");
 		header.add(infoLabel, "gap indent*2, h pref!, wrap");
@@ -99,7 +102,7 @@ public class SubtitleViewer extends JFrame {
 
 	private JTable createTable(TableModel model) {
 		final JTable table = new JTable(model);
-		table.setBackground(Color.white);
+		table.setBackground(UIManager.getColor("Table.background") != null ? UIManager.getColor("Table.background") : Color.white);
 		table.setAutoCreateRowSorter(true);
 		table.setFillsViewportHeight(true);
 		table.setRowHeight(18);

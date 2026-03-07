@@ -135,7 +135,12 @@ public class MediaBindingBean {
 	@Define("ny")
 	public String getNameWithYear() {
 		String n = getName().toString();
-		String y = " (" + getYear().toString() + ")";
+		Integer year = getYear();
+		if (year == null) {
+			return n;
+		}
+
+		String y = " (" + year.toString() + ")";
 
 		// account for TV Shows that contain the year in the series name, e.g. Doctor Who (2005)
 		return n.endsWith(y) ? n : n + y;

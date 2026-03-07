@@ -28,10 +28,13 @@ import javax.swing.JSpinner.NumberEditor;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.TransferHandler;
+import javax.swing.UIManager;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.Style;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.TokenTypes;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.google.common.eventbus.Subscribe;
@@ -62,6 +65,53 @@ public class ListPanel extends JComponent {
 	private SpinnerNumberModel toSpinnerModel = new SpinnerNumberModel(20, 0, Integer.MAX_VALUE, 1);
 
 	private FileBotList<ListItem> list = new FileBotList<ListItem>();
+
+	private Color getDefaultTokenColor(int tokenType) {
+		RSyntaxTextArea reference = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY), "", 1, 80);
+		Style style = reference.getSyntaxScheme().getStyle(tokenType);
+		return style == null ? null : style.foreground;
+	}
+
+	private void applyEditorTheme(RSyntaxTextArea editor) {
+		Color textBackground = UIManager.getColor("TextField.background");
+		if (textBackground == null) {
+			textBackground = UIManager.getColor("TextArea.background");
+		}
+		if (textBackground != null) {
+			editor.setBackground(textBackground);
+		}
+
+		Color textForeground = UIManager.getColor("TextField.foreground");
+		if (textForeground != null) {
+			editor.setForeground(textForeground);
+		}
+
+		Style operator = editor.getSyntaxScheme().getStyle(TokenTypes.OPERATOR);
+		Style separator = editor.getSyntaxScheme().getStyle(TokenTypes.SEPARATOR);
+		Style number = editor.getSyntaxScheme().getStyle(TokenTypes.LITERAL_NUMBER_DECIMAL_INT);
+
+		if (isDarkThemeEnabled()) {
+			if (operator != null) {
+				operator.foreground = new Color(0x6EE7FF);
+			}
+			if (separator != null) {
+				separator.foreground = new Color(0xFF6B8A);
+			}
+			if (number != null) {
+				number.foreground = new Color(0xFFD166);
+			}
+		} else {
+			if (operator != null) {
+				operator.foreground = getDefaultTokenColor(TokenTypes.OPERATOR);
+			}
+			if (separator != null) {
+				separator.foreground = getDefaultTokenColor(TokenTypes.SEPARATOR);
+			}
+			if (number != null) {
+				number.foreground = getDefaultTokenColor(TokenTypes.LITERAL_NUMBER_DECIMAL_INT);
+			}
+		}
+	}
 
 	public ListPanel() {
 		list.setTitle("Title");
@@ -177,20 +227,29 @@ public class ListPanel extends JComponent {
 		editor.setMarkOccurrences(false);
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 
-		Color defaultForeground = editor.getForeground();
+		applyEditorTheme(editor);
 
 		// update format on change
 		editor.getDocument().addDocumentListener(new LazyDocumentListener(20, evt -> {
 			try {
 				String expression = editor.getText().trim();
 				setFormat(expression.isEmpty() ? null : new ExpressionFormat(expression));
-				editor.setForeground(defaultForeground);
+				Color textForeground = UIManager.getColor("TextField.foreground");
+				editor.setForeground(textForeground != null ? textForeground : Color.BLACK);
 			} catch (ScriptException e) {
 				editor.setForeground(Color.RED);
 			}
 		}));
 
 		return editor;
+	}
+
+	@Override
+	public void updateUI() {
+		super.updateUI();
+		if (editor != null) {
+			applyEditorTheme(editor);
+		}
 	}
 
 	private ExpressionFormat format;

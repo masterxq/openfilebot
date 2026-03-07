@@ -332,6 +332,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		@Override
 		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
 			super.configureSelectDialog(selectDialog);
+			selectDialog.setDatasource(request.provider);
 			selectDialog.getMessageLabel().setText("Select a Show / Movie:");
 		}
 

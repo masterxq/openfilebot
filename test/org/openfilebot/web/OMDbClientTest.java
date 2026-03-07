@@ -16,7 +16,7 @@ public class OMDbClientTest {
 		Movie movie = results.get(0);
 
 		assertEquals("Avatar", movie.getName());
-		assertEquals(2009, movie.getYear());
+		assertEquals(Integer.valueOf(2009), movie.getYear());
 		assertEquals(499549, movie.getImdbId(), 0);
 	}
 
@@ -26,7 +26,7 @@ public class OMDbClientTest {
 		Movie movie = results.get(0);
 
 		assertEquals("The Terminator", movie.getName());
-		assertEquals(1984, movie.getYear());
+		assertEquals(Integer.valueOf(1984), movie.getYear());
 		assertEquals(88247, movie.getImdbId());
 	}
 
@@ -36,7 +36,7 @@ public class OMDbClientTest {
 		Movie movie = results.get(0);
 
 		assertEquals("Amélie", movie.getName());
-		assertEquals(2001, movie.getYear());
+		assertEquals(Integer.valueOf(2001), movie.getYear());
 		assertEquals(211915, movie.getImdbId(), 0);
 	}
 
@@ -46,7 +46,7 @@ public class OMDbClientTest {
 		Movie movie = results.get(0);
 
 		assertEquals("Heat", movie.getName());
-		assertEquals(1995, movie.getYear());
+		assertEquals(Integer.valueOf(1995), movie.getYear());
 		assertEquals(113277, movie.getImdbId(), 0);
 	}
 
@@ -56,7 +56,7 @@ public class OMDbClientTest {
 		Movie movie = results.get(0);
 
 		assertEquals("Drive", movie.getName());
-		assertEquals(2011, movie.getYear());
+		assertEquals(Integer.valueOf(2011), movie.getYear());
 		assertEquals(780504, movie.getImdbId(), 0);
 	}
 
@@ -65,7 +65,7 @@ public class OMDbClientTest {
 		Movie movie = client.getMovieDescriptor(new Movie(499549), null);
 
 		assertEquals("Avatar", movie.getName());
-		assertEquals(2009, movie.getYear());
+		assertEquals(Integer.valueOf(2009), movie.getYear());
 		assertEquals(499549, movie.getImdbId(), 0);
 	}
 
@@ -74,7 +74,7 @@ public class OMDbClientTest {
 		Movie movie = client.getMovieDescriptor(new Movie(211915), null);
 
 		assertEquals("Amélie", movie.getName());
-		assertEquals(2001, movie.getYear());
+		assertEquals(Integer.valueOf(2001), movie.getYear());
 		assertEquals(211915, movie.getImdbId(), 0);
 	}
 
@@ -83,7 +83,7 @@ public class OMDbClientTest {
 		Movie movie = client.getMovieDescriptor(new Movie(75610), null);
 
 		assertEquals("21 Up", movie.getName());
-		assertEquals(1977, movie.getYear());
+		assertEquals(Integer.valueOf(1977), movie.getYear());
 		assertEquals(75610, movie.getImdbId(), 0);
 	}
 
@@ -92,7 +92,7 @@ public class OMDbClientTest {
 		Movie movie = client.getMovieDescriptor(new Movie(369702), null);
 
 		assertEquals("The Sea Inside", movie.getName());
-		assertEquals(2004, movie.getYear());
+		assertEquals(Integer.valueOf(2004), movie.getYear());
 		assertEquals(369702, movie.getImdbId(), 0);
 	}
 
@@ -101,7 +101,7 @@ public class OMDbClientTest {
 		Movie movie = client.getMovieDescriptor(new Movie(1020960), null);
 
 		assertEquals("God, the Universe and Everything Else", movie.getName());
-		assertEquals(1988, movie.getYear());
+		assertEquals(Integer.valueOf(1988), movie.getYear());
 		assertEquals(1020960, movie.getImdbId(), 0);
 	}
 

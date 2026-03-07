@@ -11,6 +11,8 @@ So if you wish good support and a strongly maintained project please use the ori
 
 If you are fine with basic fixes and updates you are on the right place.
 
+Functions and design are currently being revised.
+
 I don't want donations, if somebody tells you you need to pay for OpenFileBot, it's a scam. Not do it!
 
 ## Releases
@@ -22,3 +24,8 @@ I don't want donations, if somebody tells you you need to pay for OpenFileBot, i
 
 - Local build (unsigned): see [COMPILING.md](COMPILING.md)
 - Signing setup (local + CI): see [SIGNING.md](SIGNING.md)
+
+## Screenshots
+
+![OpenFileBot New Design](doc/filebot_new_design.png)
+![Previews with Details](doc/previews_with_details.png)

@@ -468,9 +468,29 @@ public class RenamePanel extends JComponent {
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Options:"));
 
-		actionPopup.add(newAction("Edit Format", ResourceManager.getIcon("action.format"), evt -> showFormatEditor(null)));
+		actionPopup.add(newAction("Edit Format", ResourceManager.getIcon("action.format"), evt -> showFetchFormatDialog()));
 
 		actionPopup.add(newAction("Preferences", ResourceManager.getIcon("action.preferences"), evt -> {
+			showFetchPreferencesDialog();
+		}));
+
+		return actionPopup;
+	}
+
+	public void showFetchFormatDialog() {
+		showFormatEditor(null);
+	}
+
+	public boolean isPreserveFileExtensionsEnabled() {
+		return renameModel.preserveExtension();
+	}
+
+	public void setPreserveFileExtensionsEnabled(boolean preserveFileExtensions) {
+		renameModel.setPreserveExtension(preserveFileExtensions);
+		filesList.repaint();
+	}
+
+	public void showFetchPreferencesDialog() {
 			String[] modes = new String[] { MATCH_MODE_OPPORTUNISTIC, MATCH_MODE_STRICT };
 			JComboBox modeCombo = new JComboBox(modes);
 
@@ -531,9 +551,6 @@ public class RenamePanel extends JComponent {
 				// update UI
 				matchAction.setMatchMode(isMatchModeStrict());
 			}
-		}));
-
-		return actionPopup;
 	}
 
 	private ActionPopup createSettingsPopup() {

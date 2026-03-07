@@ -2,7 +2,6 @@ package org.openfilebot.ui;
 
 import static javax.swing.BorderFactory.*;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -21,6 +20,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
@@ -61,7 +61,8 @@ public class SelectButtonTextField<T> extends JComponent {
 	}
 
 	public String getText() {
-		return ((TextFieldComboBoxUI) editor.getUI()).getEditor().getText();
+		Object value = editor.isEditable() ? editor.getEditor().getItem() : editor.getSelectedItem();
+		return value == null ? "" : value.toString();
 	}
 
 	public JComboBox getEditor() {
@@ -103,7 +104,15 @@ public class SelectButtonTextField<T> extends JComponent {
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			setBorder(new EmptyBorder(1, 4, 1, 4));
 
-			String highlightText = SelectButtonTextField.this.getText().substring(0, ((TextFieldComboBoxUI) editor.getUI()).getEditor().getSelectionStart());
+			String text = SelectButtonTextField.this.getText();
+			int selectionStart = text.length();
+
+			if (editor.isEditable() && editor.getEditor().getEditorComponent() instanceof JTextComponent) {
+				selectionStart = ((JTextComponent) editor.getEditor().getEditorComponent()).getSelectionStart();
+			}
+
+			selectionStart = Math.max(0, Math.min(selectionStart, text.length()));
+			String highlightText = text.substring(0, selectionStart);
 
 			// highlight the matching sequence
 			Matcher matcher = Pattern.compile(highlightText, Pattern.LITERAL | Pattern.CASE_INSENSITIVE).matcher(value.toString());
@@ -142,7 +151,9 @@ public class SelectButtonTextField<T> extends JComponent {
 		public void configureArrowButton() {
 			super.configureArrowButton();
 
-			arrowButton.setBackground(Color.white);
+			if (UIManager.getColor("ComboBox.buttonBackground") != null) {
+				arrowButton.setBackground(UIManager.getColor("ComboBox.buttonBackground"));
+			}
 			arrowButton.setOpaque(true);
 			arrowButton.setBorder(createEmptyBorder());
 			arrowButton.setContentAreaFilled(false);
@@ -163,6 +174,12 @@ public class SelectButtonTextField<T> extends JComponent {
 			editor.setFocusable(comboBox.isFocusable());
 			editor.setFont(comboBox.getFont());
 			editor.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
+			if (UIManager.getColor("TextField.background") != null) {
+				editor.setBackground(UIManager.getColor("TextField.background"));
+			}
+			if (UIManager.getColor("TextField.foreground") != null) {
+				editor.setForeground(UIManager.getColor("TextField.foreground"));
+			}
 
 			editor.addFocusListener(createFocusListener());
 

@@ -137,7 +137,10 @@ public final class WebServices {
 			return Resource.lazy(() -> {
 				if (year > 0) {
 					// limit search index to a given year (so we don't have to check all movies of all time all the time)
-					Movie[] movies = stream(releaseInfo.getMovieList()).filter(m -> year == m.getYear()).toArray(Movie[]::new);
+					Movie[] movies = stream(releaseInfo.getMovieList()).filter(m -> {
+						Integer movieYear = m.getYear();
+						return movieYear != null && year == movieYear;
+					}).toArray(Movie[]::new);
 
 					// search by primary movie name and all known alias names
 					return new LocalSearch<>(movies, Movie::getEffectiveNamesWithoutYear);
@@ -184,9 +187,10 @@ public final class WebServices {
 		private SearchResult merge(SearchResult prime, List<SearchResult> group) {
 			int id = prime.getId();
 			String name = prime.getName();
+			Integer year = group.stream().map(SearchResult::getYear).filter(y -> y != null && y > 0).findFirst().orElse(prime.getYear());
 
 			String[] aliasNames = group.stream().flatMap(it -> stream(it.getAliasNames())).filter(n -> !n.equals(name)).distinct().toArray(String[]::new);
-			return new SearchResult(id, name, aliasNames);
+			return new SearchResult(id, name, aliasNames, year);
 		}
 
 		@Override
@@ -210,7 +214,16 @@ public final class WebServices {
 
 		@Override
 		public SearchResult[] getAnimeTitles() throws Exception {
-			return releaseInfo.getAnidbIndex();
+			try {
+				SearchResult[] index = releaseInfo.getAnidbIndex();
+				if (index != null && index.length > 0) {
+					return index;
+				}
+			} catch (Exception e) {
+				debug.log(Level.WARNING, "Failed to load local AniDB index", e);
+			}
+
+			return super.getAnimeTitles();
 		}
 	}
 

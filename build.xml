@@ -184,6 +184,17 @@
 			<zipfileset src="${dir.dist}/lib/flatlaf-extras.jar">
 				<include name="com/formdev/flatlaf/extras/**" />
 			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/ikonli-core.jar">
+				<include name="org/kordamp/ikonli/**" />
+				<include name="META-INF/resources/ikonli/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/ikonli-swing.jar">
+				<include name="org/kordamp/ikonli/swing/**" />
+			</zipfileset>
+			<zipfileset src="${dir.dist}/lib/ikonli-materialdesign2-pack.jar">
+				<include name="org/kordamp/ikonli/materialdesign2/**" />
+				<include name="META-INF/resources/materialdesignicons2/**" />
+			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/miglayout-core.jar">
 				<include name="net/miginfocom/**" />
 			</zipfileset>
@@ -872,6 +883,9 @@
 			<fileset dir="${dir.lib}/ivy/jar">
 				<include name="flatlaf.jar" />
 				<include name="flatlaf-extras.jar" />
+				<include name="ikonli-core.jar" />
+				<include name="ikonli-swing.jar" />
+				<include name="ikonli-materialdesign2-pack.jar" />
 				<include name="ehcache.jar" />
 				<include name="miglayout-core.jar" />
 				<include name="miglayout-swing.jar" />

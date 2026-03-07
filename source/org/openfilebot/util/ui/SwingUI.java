@@ -61,9 +61,12 @@ import org.openfilebot.Settings;
 
 public final class SwingUI {
 
+	private static final Settings settings = Settings.forPackage(SwingUI.class);
+	private static final String DARK_THEME_KEY = "theme.dark";
+
 	public static void setNimbusLookAndFeel() {
 		try {
-			UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf");
+			setFlatLookAndFeel(isDarkThemeEnabled());
 		} catch (Exception e) {
 			debug.log(Level.SEVERE, "Failed to set FlatLaf LaF", e);
 			try {
@@ -71,6 +74,28 @@ public final class SwingUI {
 			} catch (Exception ex) {
 				// ignore fallback failure
 			}
+		}
+	}
+
+	private static void setFlatLookAndFeel(boolean dark) throws Exception {
+		UIManager.setLookAndFeel(dark ? "com.formdev.flatlaf.FlatDarkLaf" : "com.formdev.flatlaf.FlatLightLaf");
+	}
+
+	public static boolean isDarkThemeEnabled() {
+		return Boolean.parseBoolean(settings.entry(DARK_THEME_KEY).defaultValue("false").getValue());
+	}
+
+	public static void setDarkThemeEnabled(boolean dark) {
+		settings.entry(DARK_THEME_KEY).setValue(Boolean.toString(dark));
+
+		try {
+			setFlatLookAndFeel(dark);
+			for (Window window : Window.getWindows()) {
+				SwingUtilities.updateComponentTreeUI(window);
+				window.repaint();
+			}
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, "Failed to switch theme", e);
 		}
 	}
 
@@ -84,10 +109,48 @@ public final class SwingUI {
 
 	public static void openURI(String uri) {
 		try {
-			Desktop.getDesktop().browse(URI.create(uri));
+			URI target = URI.create(uri);
+
+			if (Desktop.isDesktopSupported()) {
+				Desktop desktop = Desktop.getDesktop();
+				if (desktop.isSupported(Desktop.Action.BROWSE)) {
+					desktop.browse(target);
+					return;
+				}
+			}
+
+			if (openURIFallback(target)) {
+				return;
+			}
+
+			throw new UnsupportedOperationException("No browser integration available");
 		} catch (Exception e) {
 			debug.log(Level.SEVERE, "Failed to open URI: " + uri, e);
 		}
+	}
+
+	private static boolean openURIFallback(URI uri) {
+		String os = System.getProperty("os.name", "").toLowerCase();
+		String url = uri.toString();
+
+		try {
+			if (os.contains("linux") || os.contains("unix")) {
+				new ProcessBuilder("xdg-open", url).start();
+				return true;
+			}
+			if (os.contains("mac")) {
+				new ProcessBuilder("open", url).start();
+				return true;
+			}
+			if (os.contains("win")) {
+				new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", url).start();
+				return true;
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, "Fallback URI open failed: " + url, e);
+		}
+
+		return false;
 	}
 
 	public static void copyToClipboard(String text) {
