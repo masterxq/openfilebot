@@ -137,10 +137,34 @@ jobs:
           "RELEASE_VERSION=$tagVersion" >> $env:GITHUB_ENV
           Write-Host "Release version: $tagVersion"
 
-      - name: Install build tools (Ant + WiX)
+      - name: Install build tools (Ant + WiX + Launch4j)
         shell: pwsh
         run: |
-          choco install ant wixtoolset --no-progress -y
+          choco install ant wixtoolset launch4j --no-progress -y
+
+      - name: Resolve Launch4j executable path
+        shell: pwsh
+        run: |
+          $candidates = @(
+            "$env:ChocolateyInstall\\lib\\launch4j\\tools\\launch4j\\launch4jc.exe",
+            "${env:ProgramFiles(x86)}\\Launch4j\\launch4jc.exe",
+            "$env:ProgramFiles\\Launch4j\\launch4jc.exe"
+          )
+
+          $launch4jExe = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $launch4jExe) {
+            $cmd = Get-Command launch4jc.exe -ErrorAction SilentlyContinue
+            if ($cmd) {
+              $launch4jExe = $cmd.Source
+            }
+          }
+
+          if (-not $launch4jExe) {
+            throw "Unable to locate launch4jc.exe after installing Launch4j"
+          }
+
+          "LAUNCH4J_EXE=$launch4jExe" >> $env:GITHUB_ENV
+          Write-Host "Launch4j executable: $launch4jExe"
 
       - name: Build fatjar and MSI installers
         shell: pwsh
@@ -160,6 +184,7 @@ jobs:
             '-lib',
             'ivy.jar',
             "-Dapplication.version=$env:RELEASE_VERSION",
+            "-Dlaunch4j.executable=$env:LAUNCH4J_EXE",
             'clean',
             'resolve',
             'fatjar',
