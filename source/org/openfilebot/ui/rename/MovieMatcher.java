@@ -361,6 +361,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 
 			// multiple results have been found, user must select one
 			SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options, true, false, header);
+			selectDialog.setDatasource(service);
 
 			selectDialog.setTitle(service.getName());
 			selectDialog.getMessageLabel().setText("<html>Select best match for \"<b>" + escapeHTML(query) + "</b>\":</html>");

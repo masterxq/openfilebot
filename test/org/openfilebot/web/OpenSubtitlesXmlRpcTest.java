@@ -45,6 +45,7 @@ public class OpenSubtitlesXmlRpcTest {
 		Movie sample = list.get(0);
 
 		assertNotNull(sample.getName());
+		assertNotNull(sample.getYear());
 		assertTrue(sample.getYear() > 1900);
 		assertTrue(sample.getImdbId() > 0);
 	}
@@ -125,7 +126,7 @@ public class OpenSubtitlesXmlRpcTest {
 		Movie movie = results.get("d7aa0275cace4410");
 
 		assertEquals("Iron Man", movie.getName());
-		assertEquals(2008, movie.getYear());
+		assertEquals(Integer.valueOf(2008), movie.getYear());
 		assertEquals(371746, movie.getImdbId());
 	}
 
@@ -143,7 +144,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assumeNotNull(movie);
 
 		assertEquals("Iron Man", movie.getName());
-		assertEquals(2008, movie.getYear());
+		assertEquals(Integer.valueOf(2008), movie.getYear());
 		assertEquals(371746, movie.getImdbId());
 	}
 

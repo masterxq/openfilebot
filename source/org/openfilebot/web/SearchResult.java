@@ -9,9 +9,12 @@ import java.util.List;
 
 public class SearchResult implements Serializable {
 
+	private static final long serialVersionUID = -4071916423697364893L;
+
 	protected int id;
 	protected String name;
 	protected String[] aliasNames;
+	protected Integer year;
 
 	public SearchResult() {
 		// used by serializer
@@ -25,14 +28,27 @@ public class SearchResult implements Serializable {
 		this(id, name, EMPTY_STRING_ARRAY);
 	}
 
+	public SearchResult(int id, String name, Integer year) {
+		this(id, name, EMPTY_STRING_ARRAY, year);
+	}
+
 	public SearchResult(int id, String name, Collection<String> aliasNames) {
 		this(id, name, aliasNames.toArray(EMPTY_STRING_ARRAY));
 	}
 
+	public SearchResult(int id, String name, Collection<String> aliasNames, Integer year) {
+		this(id, name, aliasNames.toArray(EMPTY_STRING_ARRAY), year);
+	}
+
 	public SearchResult(int id, String name, String[] aliasNames) {
+		this(id, name, aliasNames, null);
+	}
+
+	public SearchResult(int id, String name, String[] aliasNames, Integer year) {
 		this.id = id;
 		this.name = name;
 		this.aliasNames = aliasNames == null || aliasNames.length == 0 ? EMPTY_STRING_ARRAY : aliasNames.clone();
+		this.year = normalizeYear(year);
 	}
 
 	public int getId() {
@@ -45,6 +61,10 @@ public class SearchResult implements Serializable {
 
 	public String[] getAliasNames() {
 		return aliasNames.clone();
+	}
+
+	public Integer getYear() {
+		return year;
 	}
 
 	public List<String> getEffectiveNames() {
@@ -88,9 +108,13 @@ public class SearchResult implements Serializable {
 
 	@Override
 	public SearchResult clone() {
-		return new SearchResult(id, name, aliasNames);
+		return new SearchResult(id, name, aliasNames, year);
 	}
 
 	private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
+	private static Integer normalizeYear(Integer year) {
+		return year != null && year > 0 ? year : null;
+	}
 
 }

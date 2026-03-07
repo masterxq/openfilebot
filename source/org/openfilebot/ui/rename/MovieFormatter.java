@@ -20,9 +20,13 @@ class MovieFormatter implements MatchFormatter {
 	public String preview(Match<?, ?> match) {
 		Movie movie = (Movie) match.getValue();
 		StringBuilder name = new StringBuilder();
+		Integer year = movie.getYear();
 
 		// format as single-file or multi-part movie
-		name.append(movie.getName()).append(" (").append(movie.getYear()).append(")");
+		name.append(movie.getName());
+		if (year != null) {
+			name.append(" (").append(year).append(")");
+		}
 
 		if (movie instanceof MoviePart) {
 			MoviePart part = (MoviePart) movie;

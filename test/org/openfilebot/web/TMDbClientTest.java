@@ -28,7 +28,7 @@ public class TMDbClientTest {
 		Movie movie = result.get(0);
 
 		assertEquals("冲出宁静号", movie.getName());
-		assertEquals(2005, movie.getYear());
+		assertEquals(Integer.valueOf(2005), movie.getYear());
 		assertEquals(-1, movie.getImdbId());
 		assertEquals(16320, movie.getTmdbId());
 	}
@@ -39,7 +39,7 @@ public class TMDbClientTest {
 		Movie movie = result.get(0);
 
 		assertEquals("Up", movie.getName());
-		assertEquals(2009, movie.getYear());
+		assertEquals(Integer.valueOf(2009), movie.getYear());
 		assertEquals(-1, movie.getImdbId());
 		assertEquals(14160, movie.getTmdbId());
 	}
@@ -48,7 +48,7 @@ public class TMDbClientTest {
 	public void searchByNameWithYearNumberName() throws Exception {
 		List<Movie> result = db.searchMovie("9 (2009)", Locale.ENGLISH);
 		assertFalse(result.isEmpty());
-		assertTrue(result.stream().anyMatch(movie -> movie.getTmdbId() == 12244 && movie.getYear() == 2009));
+		assertTrue(result.stream().anyMatch(movie -> movie.getTmdbId() == 12244 && Integer.valueOf(2009).equals(movie.getYear())));
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class TMDbClientTest {
 		Movie movie = result.get(0);
 
 		assertEquals("Escuadrón Suicida", movie.getName());
-		assertEquals(2016, movie.getYear());
+		assertEquals(Integer.valueOf(2016), movie.getYear());
 		assertEquals(-1, movie.getImdbId());
 		assertEquals(297761, movie.getTmdbId());
 	}
@@ -74,7 +74,7 @@ public class TMDbClientTest {
 		Movie movie = db.getMovieDescriptor(new Movie(418279), Locale.ENGLISH);
 
 		assertEquals("Transformers", movie.getName());
-		assertEquals(2007, movie.getYear(), 0);
+		assertEquals(Integer.valueOf(2007), movie.getYear());
 		assertEquals(418279, movie.getImdbId(), 0);
 		assertEquals(1858, movie.getTmdbId(), 0);
 	}
@@ -134,14 +134,14 @@ public class TMDbClientTest {
 	public void discoverPeriod() throws Exception {
 		List<Movie> results = db.discover(LocalDate.parse("2014-09-15"), LocalDate.parse("2014-10-22"), Locale.ENGLISH);
 		assertFalse(results.isEmpty());
-		assertTrue(results.stream().allMatch(it -> it.getYear() >= 2014 && it.getYear() <= 2015));
+		assertTrue(results.stream().allMatch(it -> it.getYear() != null && it.getYear() >= 2014 && it.getYear() <= 2015));
 	}
 
 	@Test
 	public void discoverBestOfYear() throws Exception {
 		List<Movie> results = db.discover(2015, Locale.ENGLISH);
 		assertFalse(results.isEmpty());
-		assertTrue(results.stream().anyMatch(it -> it.getTmdbId() == 76341 && it.getYear() == 2015));
+		assertTrue(results.stream().anyMatch(it -> it.getTmdbId() == 76341 && Integer.valueOf(2015).equals(it.getYear())));
 	}
 
 	@Ignore

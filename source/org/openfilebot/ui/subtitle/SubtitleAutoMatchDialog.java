@@ -55,6 +55,7 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.table.AbstractTableModel;
@@ -126,7 +127,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		table.setRowHeight(24);
 		table.setIntercellSpacing(new Dimension(5, 5));
 
-		table.setBackground(Color.white);
+		table.setBackground(UIManager.getColor("Table.background") != null ? UIManager.getColor("Table.background") : Color.white);
 		table.setAutoCreateRowSorter(true);
 		table.setFillsViewportHeight(true);
 
@@ -360,7 +361,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		private final JComboBox optionComboBox = new SimpleComboBox(ResourceManager.getIcon("action.select"));
 
 		public SubtitleMappingOptionRenderer() {
-			optionComboBox.setBackground(Color.white);
+			optionComboBox.setBackground(UIManager.getColor("ComboBox.background") != null ? UIManager.getColor("ComboBox.background") : Color.white);
 			optionComboBox.setRenderer(new SubtitleOptionRenderer(false));
 		}
 

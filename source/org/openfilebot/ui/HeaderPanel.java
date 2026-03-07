@@ -13,6 +13,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 import org.openfilebot.util.ui.GradientStyle;
 import org.openfilebot.util.ui.notification.SeparatorBorder;
@@ -23,11 +24,11 @@ public class HeaderPanel extends JComponent {
 	private JLabel titleLabel = new JLabel();
 
 	private float[] gradientFractions = { 0.0f, 0.5f, 1.0f };
-	private Color[] gradientColors = { new Color(0xF6F6F6), new Color(0xF8F8F8), new Color(0xF3F3F3) };
+	private Color[] gradientColors = { Color.LIGHT_GRAY, Color.LIGHT_GRAY, Color.LIGHT_GRAY };
 
 	public HeaderPanel() {
 		setLayout(new BorderLayout());
-		setBackground(Color.WHITE);
+		updateThemeColors();
 
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		centerPanel.setOpaque(false);
@@ -35,7 +36,6 @@ public class HeaderPanel extends JComponent {
 		titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		titleLabel.setVerticalAlignment(SwingConstants.CENTER);
 		titleLabel.setOpaque(false);
-		titleLabel.setForeground(new Color(0x101010));
 		titleLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
 
 		centerPanel.setBorder(createEmptyBorder());
@@ -43,7 +43,25 @@ public class HeaderPanel extends JComponent {
 
 		add(centerPanel, BorderLayout.CENTER);
 
-		setBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
+		Color separator = UIManager.getColor("Separator.foreground") != null ? UIManager.getColor("Separator.foreground") : new Color(0xACACAC);
+		setBorder(new SeparatorBorder(1, separator, separator, GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
+	}
+
+	private void updateThemeColors() {
+		Color panelBackground = UIManager.getColor("Panel.background") != null ? UIManager.getColor("Panel.background") : Color.WHITE;
+		Color labelForeground = UIManager.getColor("Label.foreground") != null ? UIManager.getColor("Label.foreground") : new Color(0x101010);
+
+		setBackground(panelBackground);
+		titleLabel.setForeground(labelForeground);
+		gradientColors = new Color[] { panelBackground, panelBackground, panelBackground };
+	}
+
+	@Override
+	public void updateUI() {
+		super.updateUI();
+		if (titleLabel != null) {
+			updateThemeColors();
+		}
 	}
 
 	public void setTitle(String title) {

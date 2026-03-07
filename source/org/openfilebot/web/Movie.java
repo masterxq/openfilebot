@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class Movie extends SearchResult {
 
-	protected int year;
+	protected Integer year;
 	protected int imdbId;
 	protected int tmdbId;
 
@@ -19,26 +20,30 @@ public class Movie extends SearchResult {
 	}
 
 	public Movie(int imdbId) {
-		this(null, null, 0, imdbId, 0, null);
+		this(null, null, (Integer) null, imdbId, 0, null);
 	}
 
 	public Movie(String name, int year) {
-		this(name, null, year, 0, 0, null);
+		this(name, null, Integer.valueOf(year), 0, 0, null);
 	}
 
 	public Movie(String name, int year, int imdbId) {
-		this(name, null, year, imdbId, 0, null);
+		this(name, null, Integer.valueOf(year), imdbId, 0, null);
 	}
 
 	public Movie(String name, String[] aliasNames, int year, int imdbId, int tmdbId, Locale locale) {
+		this(name, aliasNames, Integer.valueOf(year), imdbId, tmdbId, locale);
+	}
+
+	public Movie(String name, String[] aliasNames, Integer year, int imdbId, int tmdbId, Locale locale) {
 		super(tmdbId > 0 ? tmdbId : imdbId > 0 ? imdbId : 0, name, aliasNames);
-		this.year = year;
+		this.year = normalizeYear(year);
 		this.imdbId = imdbId;
 		this.tmdbId = tmdbId;
 		this.language = locale == null ? null : locale.getLanguage();
 	}
 
-	public int getYear() {
+	public Integer getYear() {
 		return year;
 	}
 
@@ -88,7 +93,7 @@ public class Movie extends SearchResult {
 				return imdbId == other.imdbId;
 			}
 
-			return year == other.year && name.equals(other.name);
+			return Objects.equals(year, other.year) && name.equals(other.name);
 		}
 
 		return false;
@@ -104,8 +109,16 @@ public class Movie extends SearchResult {
 		return toString(name, year);
 	}
 
-	private static String toString(String name, int year) {
+	private static String toString(String name, Integer year) {
+		if (year == null) {
+			return name;
+		}
+
 		return String.format("%s (%04d)", name, year < 0 ? 0 : year);
+	}
+
+	private static Integer normalizeYear(Integer year) {
+		return year != null && year > 0 ? year : null;
 	}
 
 }

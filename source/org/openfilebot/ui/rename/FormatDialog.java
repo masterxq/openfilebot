@@ -52,12 +52,15 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.Style;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.TokenTypes;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import org.openfilebot.ResourceManager;
@@ -108,6 +111,13 @@ public class FormatDialog extends JDialog {
 
 	private JLabel title = new JLabel();
 	private JPanel help = new JPanel(new MigLayout("insets 0, nogrid, novisualpadding, fillx"));
+	private RTextScrollPane editorScrollPane;
+
+	private Color getDefaultTokenColor(int tokenType) {
+		RSyntaxTextArea reference = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY), "", 1, 80);
+		Style style = reference.getSyntaxScheme().getStyle(tokenType);
+		return style == null ? null : style.foreground;
+	}
 
 	private static final PreferencesEntry<String> persistentSampleFile = Settings.forPackage(FormatDialog.class).entry("format.sample.file");
 
@@ -200,8 +210,10 @@ public class FormatDialog extends JDialog {
 
 		JPanel header = new JPanel(new MigLayout("insets dialog, nogrid, novisualpadding"));
 
-		header.setBackground(Color.white);
-		header.setBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
+		Color panelBackground = UIManager.getColor("Panel.background") != null ? UIManager.getColor("Panel.background") : Color.white;
+		Color separatorColor = UIManager.getColor("Separator.foreground") != null ? UIManager.getColor("Separator.foreground") : new Color(0xACACAC);
+		header.setBackground(panelBackground);
+		header.setBorder(new SeparatorBorder(1, separatorColor, separatorColor, GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
 
 		header.add(progressIndicator, "pos 1al 0al, hidemode 3");
 		header.add(title, "wmin 150px, wrap unrel:push");
@@ -210,7 +222,7 @@ public class FormatDialog extends JDialog {
 
 		JPanel content = new JPanel(new MigLayout("insets dialog, nogrid, fill"));
 
-		RTextScrollPane editorScrollPane = new RTextScrollPane(editor, false);
+		editorScrollPane = new RTextScrollPane(editor, false);
 		editorScrollPane.setLineNumbersEnabled(false);
 		editorScrollPane.setFoldIndicatorEnabled(false);
 		editorScrollPane.setIconRowHeaderEnabled(false);
@@ -218,9 +230,7 @@ public class FormatDialog extends JDialog {
 		editorScrollPane.setVerticalScrollBarPolicy(RTextScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		editorScrollPane.setHorizontalScrollBarPolicy(RTextScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		editorScrollPane.setViewportBorder(createEmptyBorder(7, 2, 7, 2));
-		editorScrollPane.setOpaque(true);
-		editorScrollPane.setBackground(new JTextField().getBackground());
-		editorScrollPane.setBorder(new JTextField().getBorder());
+		applyEditorTheme();
 
 		content.add(editorScrollPane, "w 120px:min(pref, 420px), h pref, growx, wrap 4px, id editor");
 		content.add(createImageButton(changeSampleAction), "sg action, w 25!, h 19!, pos n editor.y2+2 editor.x2 n");
@@ -275,7 +285,10 @@ public class FormatDialog extends JDialog {
 
 			@Override
 			public void windowActivated(WindowEvent e) {
-				SwingUtilities.invokeLater(() -> revalidate());
+				SwingUtilities.invokeLater(() -> {
+					applyEditorTheme();
+					revalidate();
+				});
 			}
 
 			@Override
@@ -377,6 +390,19 @@ public class FormatDialog extends JDialog {
 		editor.setMarkOccurrences(false);
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 
+		Color textBackground = UIManager.getColor("TextField.background");
+		if (textBackground == null) {
+			textBackground = UIManager.getColor("TextArea.background");
+		}
+		if (textBackground != null) {
+			editor.setBackground(textBackground);
+		}
+
+		Color textForeground = UIManager.getColor("TextField.foreground");
+		if (textForeground != null) {
+			editor.setForeground(textForeground);
+		}
+
 		// update format on change
 		editor.getDocument().addDocumentListener(new LazyDocumentListener(evt -> {
 			checkFormatInBackground();
@@ -395,10 +421,61 @@ public class FormatDialog extends JDialog {
 		return editor;
 	}
 
+	private void applyEditorTheme() {
+		Color background = UIManager.getColor("TextField.background");
+		if (background == null) {
+			background = UIManager.getColor("TextArea.background");
+		}
+
+		Color foreground = UIManager.getColor("TextField.foreground");
+
+		if (background != null) {
+			editor.setBackground(background);
+		}
+		if (foreground != null) {
+			editor.setForeground(foreground);
+		}
+
+		Style operator = editor.getSyntaxScheme().getStyle(TokenTypes.OPERATOR);
+		Style separator = editor.getSyntaxScheme().getStyle(TokenTypes.SEPARATOR);
+		Style number = editor.getSyntaxScheme().getStyle(TokenTypes.LITERAL_NUMBER_DECIMAL_INT);
+
+		if (isDarkThemeEnabled()) {
+			if (operator != null) {
+				operator.foreground = new Color(0x6EE7FF);
+			}
+			if (separator != null) {
+				separator.foreground = new Color(0xFF6B8A);
+			}
+			if (number != null) {
+				number.foreground = new Color(0xFFD166);
+			}
+		} else {
+			if (operator != null) {
+				operator.foreground = getDefaultTokenColor(TokenTypes.OPERATOR);
+			}
+			if (separator != null) {
+				separator.foreground = getDefaultTokenColor(TokenTypes.SEPARATOR);
+			}
+			if (number != null) {
+				number.foreground = getDefaultTokenColor(TokenTypes.LITERAL_NUMBER_DECIMAL_INT);
+			}
+		}
+
+		if (editorScrollPane != null) {
+			editorScrollPane.setOpaque(true);
+			editorScrollPane.setBackground(background != null ? background : new JTextField().getBackground());
+			editorScrollPane.getViewport().setBackground(background != null ? background : new JTextField().getBackground());
+			editorScrollPane.setBorder(new JTextField().getBorder());
+		}
+	}
+
 	private JComponent createSyntaxPanel(Mode mode) {
 		JPanel panel = new JPanel(new MigLayout("fill, nogrid, novisualpadding", "[pref]", "[fill, min]"));
-		panel.setBorder(createLineBorder(new Color(0xACA899)));
-		panel.setBackground(new Color(0xFFFFE1));
+		Color borderColor = UIManager.getColor("Separator.foreground") != null ? UIManager.getColor("Separator.foreground") : new Color(0xACA899);
+		Color helpBackground = UIManager.getColor("ToolTip.background") != null ? UIManager.getColor("ToolTip.background") : new Color(0xFFFFE1);
+		panel.setBorder(createLineBorder(borderColor));
+		panel.setBackground(helpBackground);
 		panel.setOpaque(true);
 
 		panel.add(new LinkButton(newAction(ResourceBundle.getBundle(FormatDialog.class.getName()).getString(mode.key() + ".syntax"), evt -> {
@@ -411,8 +488,10 @@ public class FormatDialog extends JDialog {
 	private JComponent createExamplesPanel(Mode mode) {
 		JPanel panel = new JPanel(new MigLayout("fill, wrap 3"));
 
-		panel.setBorder(createLineBorder(new Color(0xACA899)));
-		panel.setBackground(new Color(0xFFFFE1));
+		Color borderColor = UIManager.getColor("Separator.foreground") != null ? UIManager.getColor("Separator.foreground") : new Color(0xACA899);
+		Color helpBackground = UIManager.getColor("ToolTip.background") != null ? UIManager.getColor("ToolTip.background") : new Color(0xFFFFE1);
+		panel.setBorder(createLineBorder(borderColor));
+		panel.setBackground(helpBackground);
 
 		for (String format : mode.getSampleExpressions()) {
 			LinkButton formatLink = new LinkButton(newAction(format, e -> setFormatCode(format)));

@@ -225,6 +225,7 @@ public class AutoDetection {
 		private final Movie m;
 
 		private final String dn, fn, sn, mn, my, asn;
+		private final Integer myear;
 		private final Pattern snm, mnm;
 
 		public Rules(File file, List<String> series, List<Movie> movie) throws Exception {
@@ -238,7 +239,8 @@ public class AutoDetection {
 			fn = normalize(getName(f));
 			sn = normalize(s);
 			mn = normalize(m.getName());
-			my = Integer.toString(m.getYear());
+			myear = m.getYear();
+			my = myear == null ? "" : Integer.toString(myear);
 
 			snm = compile(sn, LITERAL);
 			mnm = compile(mn, LITERAL);
@@ -293,7 +295,7 @@ public class AutoDetection {
 		}
 
 		public boolean containsMovieYear() {
-			return m.getYear() >= 1950 && listPathTail(f, 3, true).stream().anyMatch(it -> it.getName().contains(my) && parseEpisodeNumber(it.getName(), false) == null);
+			return myear != null && myear >= 1950 && listPathTail(f, 3, true).stream().anyMatch(it -> it.getName().contains(my) && parseEpisodeNumber(it.getName(), false) == null);
 		}
 
 		public boolean containsMovieNameYear() {
@@ -343,8 +345,16 @@ public class AutoDetection {
 		}
 
 		public boolean similarNameYear() {
-			return getSimilarity(mn, fn) >= 0.8f || Stream.of(dn, fn).anyMatch(it -> {
-				return matchIntegers(it).stream().filter(y -> m.getYear() - 1 <= y && y <= m.getYear() + 1).count() > 0;
+			if (getSimilarity(mn, fn) >= 0.8f) {
+				return true;
+			}
+
+			if (myear == null) {
+				return false;
+			}
+
+			return Stream.of(dn, fn).anyMatch(it -> {
+				return matchIntegers(it).stream().filter(y -> myear - 1 <= y && y <= myear + 1).count() > 0;
 			});
 		}
 

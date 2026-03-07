@@ -129,13 +129,15 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 			int id = getInteger(it, "id");
 			String seriesName = getString(it, "seriesName");
 			String[] aliasNames = stream(getArray(it, "aliases")).toArray(String[]::new);
+			SimpleDate firstAired = getStringValue(it, "firstAired", SimpleDate::parse);
+			Integer year = firstAired == null ? null : firstAired.getYear();
 
 			if (seriesName == null || seriesName.startsWith("**") || seriesName.endsWith("**")) {
 				debug.warning(format("Ignore invalid series: %s [%d]", seriesName, id));
 				return null;
 			}
 
-			return new SearchResult(id, seriesName, aliasNames);
+			return new SearchResult(id, seriesName, aliasNames, year);
 		}).filter(Objects::nonNull).collect(toList());
 	}
 

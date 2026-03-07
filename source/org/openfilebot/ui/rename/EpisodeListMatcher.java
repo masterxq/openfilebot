@@ -239,6 +239,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 			// multiple results have been found, user must select one
 			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(parent, options, true, false, header.getText().isEmpty() ? null : header);
+			selectDialog.setDatasource(provider);
 			selectDialog.setTitle(provider.getName());
 			selectDialog.getMessageLabel().setText("<html>Select best match for \"<b>" + escapeHTML(query) + "</b>\":</html>");
 			selectDialog.getCancelAction().putValue(Action.NAME, "Skip");
