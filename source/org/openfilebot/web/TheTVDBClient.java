@@ -264,7 +264,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 			return new SeriesData(info, episodes);
 		} catch (Exception e) {
 			if (isSeriesNotFound(e, series.getId())) {
-				debug.warning(cause(format("Series not found: %s [%d]", series.getName(), series.getId()), e));
+				debug.warning(cause(String.format("Series not found: %s [%d]", series.getName(), series.getId()), e));
 
 				SeriesInfo info = new SeriesInfo(this, sortOrder, locale, series.getId());
 				info.setName(series.getName());
