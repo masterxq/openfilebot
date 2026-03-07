@@ -31,7 +31,7 @@ jobs:
       - name: Run tests
         run: ant -lib /usr/share/java/ivy.jar clean resolve test-ci
 
-        - name: Summarize failing tests
+      - name: Summarize failing tests
         if: always()
         run: |
           python3 - <<'PY'
@@ -73,14 +73,14 @@ jobs:
             print('No failing tests found in JUnit XML reports.')
           PY
 
-        - name: Upload test reports
+      - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: openfilebot-test-reports-${{ github.sha }}
           if-no-files-found: warn
           path: |
-          dist/test-reports/**
+            dist/test-reports/**
 
       - name: Build fatjar and Debian packages
         run: ant -lib /usr/share/java/ivy.jar fatjar deb
