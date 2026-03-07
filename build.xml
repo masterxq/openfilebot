@@ -1028,6 +1028,7 @@
 			</classpath>
 
 			<formatter type="plain" usefile="true" />
+			<formatter type="plain" usefile="false" />
 			<formatter type="xml" />
 
 			<batchtest todir="${dir.test.report}">
