@@ -142,6 +142,11 @@ jobs:
         run: |
           choco install ant wixtoolset --no-progress -y
 
+      - name: Switch JavaFX classifier to Windows
+        shell: pwsh
+        run: |
+          (Get-Content ivy.xml -Raw).Replace('m:classifier="linux"', 'm:classifier="win"') | Set-Content ivy.xml -NoNewline
+
       - name: Build fatjar
         shell: pwsh
         run: |
