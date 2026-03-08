@@ -36,8 +36,8 @@
 		<dependency rev="2.10.0" org="org.apache.commons" name="commons-vfs2" />
 		<dependency rev="0.7" org="com.github.junrar" name="junrar" />
 		<dependency rev="2.6.1" org="com.fifesoft" name="rsyntaxtextarea" />
-		<dependency rev="9.20-2.00beta" org="net.sf.sevenzipjbinding" name="sevenzipjbinding" />
-		<dependency rev="9.20-2.00beta" org="net.sf.sevenzipjbinding" name="sevenzipjbinding-all-platforms" />
+		<dependency rev="16.02-2.01" org="net.sf.sevenzipjbinding" name="sevenzipjbinding" />
+		<dependency rev="16.02-2.01" org="net.sf.sevenzipjbinding" name="sevenzipjbinding-all-platforms" />
 		<dependency rev="0.6" org="com.optimaize.languagedetector" name="language-detector" />
 		<dependency rev="0.8.3" org="one.util" name="streamex" />
 		<dependency rev="8.40.13" org="org.controlsfx" name="controlsfx" />

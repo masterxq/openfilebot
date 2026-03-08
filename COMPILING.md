@@ -13,6 +13,8 @@ Run the default Windows build:
 
 `build.bat`
 
+This resolves dependencies and builds the fatjar.
+
 Or build manually (no Microsoft Store required):
 
 1. `ant -lib ivy.jar clean resolve fatjar`

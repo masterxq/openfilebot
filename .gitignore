@@ -5,7 +5,7 @@ dist/
 cache/
 lib/ivy/
 
-*.properties
+#*.properties
 
 *.sh
 *.cmd

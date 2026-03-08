@@ -7,5 +7,6 @@ Description: @{package.synopsis}
 Homepage: @{package.homepage}
 Section: utils
 Priority: extra
-Suggests: openjdk-21-jre | openjdk-22-jre | openjdk-23-jre | openjdk-24-jre | openjdk-25-jre, openjfx, mediainfo, libchromaprint-tools
+Depends: libchromaprint-tools, libjna-jni, libmediainfo0v5, libzen0v5 | libzen0t64
+Suggests: openjdk-21-jre | openjdk-22-jre | openjdk-23-jre | openjdk-24-jre | openjdk-25-jre, openjfx
 Enhances: nautilus-actions
