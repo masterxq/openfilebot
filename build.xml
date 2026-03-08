@@ -968,7 +968,7 @@
 			<fileset dir="${dir.source}" includes="**/*.properties" />
 		</copy-replace>
 
-		<replace file="${dir.build}/org/openfilebot/Settings.properties" token="application.version: ${application.version}" value="application.version: ${build.version}" summary="true" />
+		<replaceregexp file="${dir.build}/org/openfilebot/Settings.properties" match="^application\.version:.*$" replace="application.version: ${build.version}" byline="true" />
 
 		<!-- copy resources -->
 		<copy todir="${dir.build}">
