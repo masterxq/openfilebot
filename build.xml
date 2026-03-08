@@ -88,18 +88,13 @@
 			<param name="arch.7zj" value="Windows-amd64" />
 		</antcall>
 		<antcall target="resolve-import-native">
-			<param name="arch" value="win32-x86" />
-			<param name="arch.jna" value="win32-x86/" />
-			<param name="arch.7zj" value="Windows-x86" />
-		</antcall>
-		<antcall target="resolve-import-native">
 			<param name="arch" value="linux-amd64" />
 			<param name="arch.jna" value="linux-x86-64" />
 			<param name="arch.7zj" value="Linux-amd64" />
 		</antcall>
 		<antcall target="resolve-import-native">
 			<param name="arch" value="linux-i686" />
-			<param name="arch.jna" value="linux-x86" />
+			<param name="arch.jna" value="disabled" />
 			<param name="arch.7zj" value="Linux-i386" />
 		</antcall>
 		<antcall target="resolve-import-native">
@@ -718,8 +713,7 @@
 		<jdeb destfile="${dir.dist}/${package.name}_${build.version}_${deb.arch}.deb" control="${dir.staging}/control" compression="xz" verbose="true">
 			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.staging}" includes="*.jar" />
 			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.staging}" includes="*.sh" filemode="755" />
-			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.lib}/native/linux-${arch}" includes="fpcalc" filemode="755" />
-			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
+			<tarfileset prefix="/usr/share/openfilebot" dir="${dir.lib}/native/linux-${arch}" includes="lib7-Zip-JBinding.so" />
 			<tarfileset prefix="/usr/share/icons/hicolor/scalable/apps" dir="${dir.installer}/icons" includes="openfilebot.svg" />
 			<tarfileset prefix="/usr/share" dir="${dir.staging}/share" includes="**/*.desktop" />
 		</jdeb>
@@ -732,13 +726,6 @@
 			<param name="arch.env" value="AMD64" />
 			<param name="arch.jre" value="x64" />
 		</antcall>
-		<!--
-		<antcall target="appx-arch">
-			<param name="arch" value="x86" />
-			<param name="arch.env" value="x86" />
-			<param name="arch.jre" value="i586" />
-		</antcall>
-		-->
 	</target>
 
 
@@ -785,51 +772,15 @@
 	</target>
 
 
-	<target name="msi" description="Build Windows Installer packages" depends="revision">
-		<antcall target="msi-arch">
-			<param name="arch" value="x64" />
-		</antcall>
-		<antcall target="msi-arch">
-			<param name="arch" value="x86" />
-		</antcall>
-	</target>
-
-
-	<target name="msi-arch">
-		<property name="dir.staging" location="${dir.dist}/msi/${arch}" />
-
-		<copy todir="${dir.staging}">
-			<fileset dir="${dir.installer}/msi" includes="*.exe, *.rtf, *.bmp" />
-		</copy>
-		<copy todir="${dir.staging}">
-			<fileset dir="${dir.lib}/native/win32-${arch}" />
-		</copy>
-		<copy todir="${dir.staging}">
-			<fileset dir="${dir.installer}/icons" includes="*.ico" />
-		</copy>
-		<copy-replace todir="${dir.staging}">
-			<fileset dir="${dir.installer}/msi" includes="*.wix, *.ini, *.properties" />
-		</copy-replace>
-
-		<exec executable="candle" dir="${dir.staging}" failonerror="true">
-			<arg line="filebot.wix -out msi.wixobj" />
-		</exec>
-		<exec executable="light" dir="${dir.staging}" failonerror="true">
-			<arg line="msi.wixobj -sval -ext WixUIExtension -out ${dir.dist}/${release}_${arch}.msi" />
-		</exec>
-	</target>
-
-
 	<target name="portable" description="Build portable package" depends="revision">
 		<tar destfile="${dir.dist}/${release}-portable.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
 			<tarfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
 
-			<!-- include native libraries for all supported platforms -->
+			<!-- include native libraries for supported Linux platforms -->
 			<tarfileset prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" includes="*.so" />
 			<tarfileset prefix="lib/aarch64" dir="${dir.lib}/native/linux-armv8" includes="*.so" />
-			<tarfileset prefix="lib/i686" dir="${dir.lib}/native/linux-i686" includes="*.so" />
 			<tarfileset prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
 
 			<!-- include maintainer public key -->
@@ -866,10 +817,9 @@
 			<package dir="${dir.installer}/spk/package" includes="*.sh" filemode="755" />
 			<package file="${path.fatjar}" fullpath="openfilebot.jar" />
 
-			<!-- include native libraries for all supported platforms -->
+			<!-- include native libraries for supported Linux platforms -->
 			<package prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" includes="*.so" />
 			<package prefix="lib/armv8" dir="${dir.lib}/native/linux-armv8" includes="*.so" />
-			<package prefix="lib/i686" dir="${dir.lib}/native/linux-i686" includes="*.so" />
 			<package prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
 
 			<codesign secring="${dir.installer}/gpg/secring.gpg" keyid="${gpg.key}" password="${gpg.pwd}" />
