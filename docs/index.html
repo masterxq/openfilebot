@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenFileBot - Open-Source Media Renamer</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="logo.svg" alt="OpenFileBot Logo" class="w-8 h-8">
+                <span class="font-bold text-xl text-slate-800 tracking-tight">openfilebot</span>
+            </div>
+            <a href="https://github.com/masterxq/openfilebot" target="_blank" rel="noopener noreferrer" 
+               class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                View on GitHub
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        
+        <!-- Hero Section -->
+        <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 leading-tight mb-6">
+                    Organize your media, <br>
+                    <span class="text-blue-600">the open-source way.</span>
+                </h1>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                    Batch-rename your movies, series episodes, and anime using online metadata. 
+                    Match files to common naming schemes, move them into clean folder structures, 
+                    and keep your media library perfectly organized.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="https://github.com/masterxq/openfilebot/releases/latest" 
+                       class="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Download Release
+                    </a>
+                    <a href="https://github.com/masterxq/openfilebot" 
+                       class="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-white border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 transition-colors">
+                        Source Code
+                    </a>
+                </div>
+            </div>
+            <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200/60 bg-white">
+                <img src="filebot_new_design.png" alt="OpenFileBot Main Interface" class="w-full h-auto object-cover">
+            </div>
+        </section>
+
+        <!-- Motivation & Tech Stack -->
+        <section class="bg-blue-50 border-y border-blue-100 py-16 lg:py-24">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Built By an Open-Source Fan, For You</h2>
+                <p class="max-w-2xl mx-auto text-lg text-slate-600">
+                    I am a huge fan of open-source software and I enjoy sharing my work with the community. We've breathed new life into an old classic.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-10">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Modernized Tech Stack</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        We didn't just re-release the old code. We've completely overhauled aging technology inside the app. 
+                        We integrated numerous modern libraries and, most crucially, <strong>upgraded the entire project to run on a new, modern Java version.</strong> 
+                        This ensures better security, speed, and cross-platform compatibility moving forward.
+                    </p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Cross-Platform Support</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Enjoy the same powerful features across your favorite operating systems. We provide pre-compiled installer packages and portable builds:
+                    </p>
+                    <ul class="mt-4 space-y-2 text-sm text-slate-600 font-medium">
+                        <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span> Windows (x64 Installers & Portables)</li>
+                        <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span> Debian / Ubuntu Linux (amd64, i386, armhf)</li>
+                        <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span> Linux Portable Archives (x86_64, aarch64)</li>
+                    </ul>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- Previews & Details -->
+        <section class="bg-white border-y border-slate-200 py-16 lg:py-24">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
+                <div class="order-2 md:order-1 relative rounded-2xl overflow-hidden shadow-xl border border-slate-200/60">
+                    <img src="previews_with_details.png" alt="FileBot Detail Previews" class="w-full h-auto object-cover">
+                </div>
+                <div class="order-1 md:order-2">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-6">Preview before you rename</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed mb-6">
+                        The interface provides comprehensive detail views and previews before applying any changes to your files.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex">
+                            <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-slate-700">Easily verify matches and folder destinations.</span>
+                        </li>
+                        <li class="flex">
+                            <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-slate-700">Dedicated tools for subtitles and file verification via SFV included.</span>
+                        </li>
+                        <li class="flex">
+                            <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-slate-700">Redesigned UI currently undergoing a fresh revision to enhance user experience.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Huge Thank You Alert -->
+        <section class="py-16 lg:py-24">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+                <div class="bg-white p-3 rounded-full shadow-sm mb-4 border border-slate-200">
+                    <svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">A Huge Thank You to the Original Author</h2>
+                <p class="max-w-3xl text-lg text-slate-700 leading-relaxed mb-6">
+                    OpenFileBot is an open-source software based on the final available GPLv3 source of FileBot. 
+                    We are incredibly grateful to the original author and community for creating such an amazing tool over the years.
+                </p>
+                <div class="bg-white px-8 py-5 rounded-xl border border-blue-200 shadow-sm max-w-2xl w-full">
+                    <p class="text-slate-600 mb-4 font-medium">
+                        This unofficial version does not offer the same level of support or development backing as the commercial FileBot.
+                    </p>
+                    <a href="https://www.filebot.net/" target="_blank" rel="noopener noreferrer" 
+                       class="text-blue-600 font-semibold hover:text-blue-800 underline decoration-2 underline-offset-4">
+                        For premium features and professional support, we recommend purchasing FileBot.
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="bg-white border-t border-slate-200 py-16 lg:py-24">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-slate-900 mb-10 text-center">Frequently Asked Questions</h2>
+                <div class="space-y-6">
+                    <div class="bg-slate-50 p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h4 class="text-lg font-bold text-slate-900 mb-2">Is OpenFileBot free?</h4>
+                        <p class="text-slate-600">Yes, it is 100% free and open-source under the GPLv3 license. I don't want donations. If somebody tells you you need to pay for OpenFileBot, it's a scam. Do not do it!</p>
+                    </div>
+                    <div class="bg-slate-50 p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h4 class="text-lg font-bold text-slate-900 mb-2">Where can I get help?</h4>
+                        <p class="text-slate-600">If you are fine with basic fixes and updates, you can <a href="https://github.com/masterxq/openfilebot/issues" class="text-blue-600 hover:underline">open an issue on GitHub</a>. Please attach all logs and screenshots. If I find some time, I will try to fix it. Keep in mind this is a community project. For dedicated, fast support, please buy <a href="https://www.filebot.net/" class="text-blue-600 hover:underline">FileBot</a>.</p>
+                    </div>
+                    <div class="bg-slate-50 p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h4 class="text-lg font-bold text-slate-900 mb-2">Is the old technology still the same?</h4>
+                        <p class="text-slate-600">No, for this software we have modernized the backend tremendously. We’ve removed very outdated legacy code, adopted new libraries, and upgraded to a strictly modern Java version to keep the codebase maintainable and fast.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center auto-cols-auto gap-6">
+            <div class="flex items-center gap-3">
+                <img src="logo.svg" alt="OpenFileBot text logo" class="w-8 h-8 opacity-70 grayscale">
+                <span class="font-bold text-xl text-white tracking-tight">openfilebot</span>
+            </div>
+            
+            <div class="text-sm text-center md:text-left">
+                GPLv3 media renamer. Open-source software. <br class="hidden md:block">
+                For commercial or supported usage, see <a href="https://www.filebot.net/" class="text-blue-400 hover:text-blue-300 transition-colors">filebot.net</a>.
+            </div>
+
+            <div class="flex gap-4 text-sm">
+                <a href="https://github.com/masterxq/openfilebot" class="hover:text-white transition-colors">GitHub Repository</a>
+                <a href="https://github.com/masterxq/openfilebot/releases" class="hover:text-white transition-colors">Releases</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
