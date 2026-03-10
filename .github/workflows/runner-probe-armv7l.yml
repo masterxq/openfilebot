@@ -1,0 +1,16 @@
+name: Runner Probe ARMv7l
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe-armv7l:
+    runs-on: ubuntu-24.04-armhf
+
+    steps:
+      - name: Show runner architecture
+        run: |
+          echo "runner.os=$RUNNER_OS"
+          echo "runner.arch=$RUNNER_ARCH"
+          uname -a
+          uname -m
