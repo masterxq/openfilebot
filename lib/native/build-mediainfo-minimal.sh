@@ -119,8 +119,10 @@ if [[ -n "$DEPLOY_TARGET" ]]; then
   printf '%s\n' "==> Deploying ${DEPLOY_TARGET} libs into repository"
   cp "$PREFIX/lib/libmediainfo.so.0.0.0" "$REPO_ROOT/lib/native/${DEPLOY_TARGET}/libmediainfo.so"
   cp "$PREFIX/lib/libzen.so.0.0.0" "$REPO_ROOT/lib/native/${DEPLOY_TARGET}/libzen.so"
+  ln -sfn libzen.so "$REPO_ROOT/lib/native/${DEPLOY_TARGET}/libzen.so.0"
   echo "Updated: lib/native/${DEPLOY_TARGET}/libmediainfo.so"
   echo "Updated: lib/native/${DEPLOY_TARGET}/libzen.so"
+  echo "Updated: lib/native/${DEPLOY_TARGET}/libzen.so.0 -> libzen.so"
 fi
 
 echo
