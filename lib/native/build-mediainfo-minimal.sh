@@ -8,10 +8,22 @@ REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 WORK_DIR="$REPO_ROOT/tmp-mediainfo-minimal"
 PREFIX="$WORK_DIR/install"
 
-DEPLOY=0
-if [[ "${1:-}" == "--deploy-linux-amd64" ]]; then
-  DEPLOY=1
-fi
+DEPLOY_TARGET=""
+case "${1:-}" in
+  --deploy-linux-amd64)
+    DEPLOY_TARGET="linux-amd64"
+    ;;
+  --deploy-linux-armv8)
+    DEPLOY_TARGET="linux-armv8"
+    ;;
+  "")
+    ;;
+  *)
+    echo "Unknown option: ${1}" >&2
+    echo "Usage: $0 [--deploy-linux-amd64|--deploy-linux-armv8]" >&2
+    exit 1
+    ;;
+esac
 
 need_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -61,7 +73,8 @@ make -j"$(nproc)" >/tmp/mi-make-min.log 2>&1
 make install >/tmp/mi-install-min.log 2>&1
 
 NEW_LIB="$PREFIX/lib/libmediainfo.so.0.0.0"
-CUR_LIB="$REPO_ROOT/lib/native/linux-amd64/libmediainfo.so"
+COMPARE_TARGET="${DEPLOY_TARGET:-linux-amd64}"
+CUR_LIB="$REPO_ROOT/lib/native/${COMPARE_TARGET}/libmediainfo.so"
 
 echo
 printf '%s\n' "==> Build summary"
@@ -72,8 +85,15 @@ printf '%s\n' "==> NEEDED (new)"
 readelf -d "$NEW_LIB" | grep NEEDED || true
 
 echo
-printf '%s\n' "==> NEEDED (current repo linux-amd64)"
-readelf -d "$CUR_LIB" | grep NEEDED || true
+if [[ -f "$CUR_LIB" ]]; then
+  echo
+  printf '%s\n' "==> NEEDED (current repo ${COMPARE_TARGET})"
+  readelf -d "$CUR_LIB" | grep NEEDED || true
+else
+  echo
+  printf '%s\n' "==> NEEDED (current repo ${COMPARE_TARGET})"
+  printf '%s\n' "No existing libmediainfo.so found at lib/native/${COMPARE_TARGET}"
+fi
 
 echo
 printf '%s\n' "==> API symbol check"
@@ -94,15 +114,15 @@ echo
 printf '%s\n' "==> Output files"
 ls -l "$PREFIX/lib/libmediainfo.so"* "$PREFIX/lib/libzen.so"*
 
-if [[ "$DEPLOY" -eq 1 ]]; then
+if [[ -n "$DEPLOY_TARGET" ]]; then
   echo
-  printf '%s\n' "==> Deploying linux-amd64 libs into repository"
-  cp "$PREFIX/lib/libmediainfo.so.0.0.0" "$REPO_ROOT/lib/native/linux-amd64/libmediainfo.so"
-  cp "$PREFIX/lib/libzen.so.0.0.0" "$REPO_ROOT/lib/native/linux-amd64/libzen.so"
-  echo "Updated: lib/native/linux-amd64/libmediainfo.so"
-  echo "Updated: lib/native/linux-amd64/libzen.so"
+  printf '%s\n' "==> Deploying ${DEPLOY_TARGET} libs into repository"
+  cp "$PREFIX/lib/libmediainfo.so.0.0.0" "$REPO_ROOT/lib/native/${DEPLOY_TARGET}/libmediainfo.so"
+  cp "$PREFIX/lib/libzen.so.0.0.0" "$REPO_ROOT/lib/native/${DEPLOY_TARGET}/libzen.so"
+  echo "Updated: lib/native/${DEPLOY_TARGET}/libmediainfo.so"
+  echo "Updated: lib/native/${DEPLOY_TARGET}/libzen.so"
 fi
 
 echo
 printf '%s\n' "Done. Candidate libs are in: $PREFIX/lib"
-printf '%s\n' "Use --deploy-linux-amd64 to copy the result into the repository."
+printf '%s\n' "Use --deploy-linux-amd64 or --deploy-linux-armv8 to copy the result into the repository."
