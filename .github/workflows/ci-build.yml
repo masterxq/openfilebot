@@ -94,5 +94,5 @@ jobs:
             dist/*.jar
             dist/*.deb
             dist/*.changes
-            dist/*-portable-*.tar.xz
+            dist/*-portable-*.tar.gz
             dist/*-portable-*.zip
