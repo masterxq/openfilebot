@@ -30,5 +30,6 @@ cp Staging/*Mac*x86_64+arm64*/*/*/libmediainfo.dylib mac-x86_64/libmediainfo.dyl
 cp Staging/*Windows*x64*/MediaInfo.dll win32-x64/MediaInfo.dll
 cp Staging/*/data/usr/lib/x86_64-linux-gnu/libmediainfo.so.0.0.0 linux-amd64/libmediainfo.so
 cp Staging/*/data/usr/lib/x86_64-linux-gnu/libzen.so.${ZEN_VERSION} linux-amd64/libzen.so
+ln -sfn libzen.so linux-amd64/libzen.so.0
 
 rm -r Staging

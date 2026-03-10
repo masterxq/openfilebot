@@ -2,13 +2,13 @@
 
 ## 0.9.4
 
-- Split portable artifacts by platform / architecture:
-- Linux `armv7l`: `*-portable-linux-armv7l.tar.xz`
-- Linux `aarch64`: `*-portable-linux-aarch64.tar.xz`
-- Linux `x86_64`: `*-portable-linux-x86_64.tar.xz`
+- Split portable artifacts by platform / architecture and standardized naming:
+- Linux `aarch64`: `*-portable-linux-aarch64.tar.gz`
+- Linux `x86_64`: `*-portable-linux-x86_64.tar.gz`
 - Windows `x64`: `*-portable-win64.zip`
-- Updated CI and manual release workflows to publish the new portable artifact set.
+- Updated CI and manual release workflows to build, sign, and publish the new portable artifact set (`.tar.gz` / `.zip`).
 - Added a manual GitHub Actions workflow to refresh Linux native libraries and open an automated pull request (`refresh-native-libs.yml`).
+- Refreshed Linux native library handling: removed obsolete `armv7l` portable payload, added `libzen.so.0 -> libzen.so` SONAME symlinks, included `lib7-Zip-JBinding.so` for `linux-armv8`, and bundled `fpcalc` for both portable Linux architectures.
 - Updated portable update signature trust key and maintainer public key material used by installer scripts.
 
 ## 0.9.3

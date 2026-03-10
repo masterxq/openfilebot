@@ -105,7 +105,7 @@
 		<antcall target="resolve-import-native">
 			<param name="arch" value="linux-armv8" />
 			<param name="arch.jna" value="linux-aarch64" />
-			<param name="arch.7zj" value="linux-aarch64" />
+			<param name="arch.7zj" value="Linux-arm64" />
 		</antcall>
 	</target>
 
@@ -137,6 +137,14 @@
 					<globmapper from="lib*.dll" to="*.dll" />
 					<identitymapper />
 				</compositemapper>
+			</chainedmapper>
+		</unzip>
+		<unzip src="${dir.lib}/ivy/jar/sevenzipjbinding-linux-arm64.jar" dest="${dir.lib}/native/${arch}" overwrite="yes">
+			<patternset>
+				<include name="**/${arch.7zj}/*.so" />
+			</patternset>
+			<chainedmapper>
+				<flattenmapper />
 			</chainedmapper>
 		</unzip>
 	</target>
@@ -781,8 +789,9 @@
 		<tar destfile="${dir.dist}/${release}-portable-linux-aarch64.tar.gz" compression="gzip" longfile="posix" encoding="utf-8">
 			<tarfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
+			<tarfileset file="${dir.lib}/native/linux-armv8/fpcalc" fullpath="fpcalc" filemode="755" />
 
-			<tarfileset prefix="lib/aarch64" dir="${dir.lib}/native/linux-armv8" includes="*.so" />
+			<tarfileset prefix="lib/aarch64" dir="${dir.lib}/native/linux-armv8" includes="*.so, *.so.*" />
 
 			<!-- include maintainer public key -->
 			<tarfileset dir="${dir.installer}/gpg" includes="maintainer.pub" />
@@ -794,8 +803,9 @@
 		<tar destfile="${dir.dist}/${release}-portable-linux-x86_64.tar.gz" compression="gzip" longfile="posix" encoding="utf-8">
 			<tarfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
+			<tarfileset file="${dir.lib}/native/linux-amd64/fpcalc" fullpath="fpcalc" filemode="755" />
 
-			<tarfileset prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
+			<tarfileset prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so, *.so.*" />
 
 			<!-- include maintainer public key -->
 			<tarfileset dir="${dir.installer}/gpg" includes="maintainer.pub" />
@@ -846,9 +856,9 @@
 			<package file="${path.fatjar}" fullpath="openfilebot.jar" />
 
 			<!-- include native libraries for supported Linux platforms -->
-			<package prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" includes="*.so" />
-			<package prefix="lib/armv8" dir="${dir.lib}/native/linux-armv8" includes="*.so" />
-			<package prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
+			<package prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" includes="*.so, *.so.*" />
+			<package prefix="lib/armv8" dir="${dir.lib}/native/linux-armv8" includes="*.so, *.so.*" />
+			<package prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so, *.so.*" />
 
 			<!-- SPK signing is handled externally (CI/local keyring), no bundled secret key in repository. -->
 		</spk>
