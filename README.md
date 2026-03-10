@@ -50,6 +50,38 @@ Notes:
 - `apt install ./...deb` resolves and installs missing dependencies from configured repositories.
 - `dpkg -i ...deb` alone does not resolve dependencies automatically.
 
+### Debian / Ubuntu (APT Repository)
+
+Signed APT repository:
+
+- `https://masterxq.github.io/openfilebot-repo/apt`
+
+Add key + source (`stable` channel):
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://masterxq.github.io/openfilebot-repo/apt/keyrings/openfilebot-archive-keyring.gpg \
+	| sudo tee /etc/apt/keyrings/openfilebot-archive-keyring.gpg >/dev/null
+
+echo "deb [signed-by=/etc/apt/keyrings/openfilebot-archive-keyring.gpg] https://masterxq.github.io/openfilebot-repo/apt stable main" \
+	| sudo tee /etc/apt/sources.list.d/openfilebot.list >/dev/null
+
+sudo apt update
+sudo apt install openfilebot
+```
+
+Testing channel:
+
+```bash
+echo "deb [signed-by=/etc/apt/keyrings/openfilebot-archive-keyring.gpg] https://masterxq.github.io/openfilebot-repo/apt testing main" \
+	| sudo tee /etc/apt/sources.list.d/openfilebot.list >/dev/null
+```
+
+Channel policy:
+
+- `stable`: latest 5 regular releases
+- `testing`: latest 5 releases including prereleases
+
 ## Screenshots
 
 ![OpenFileBot New Design](docs/filebot_new_design.png)
