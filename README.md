@@ -1,15 +1,24 @@
 # OpenFileBot
 
-OpenFileBot is a fork of the latest FileBot release with GPLv3 license i could find.
+GPL media renamer and organizer for Windows and Linux.
+
+OpenFileBot is based on the latest FileBot source with GPLv3 license.
+
+OpenFileBot helps you batch-rename movies, series episodes, and anime files using online metadata.
+It can match files to common naming schemes, move them into clean folder structures, and keep your media library consistent.
+For everyday workflows, it also includes subtitle and verification tools available in the interface.
 
 Thanks to the original author and his community, FileBot is a great tool for renaming and organizing media files.
 
-This fork will be maintained with low power and the support will be very limited.
-So if you wish good support and a strongly maintained project please use the original FileBot project instead.
+This version does not have the same development power and support as the commercial FileBot.
+
+If you wish good support and a strongly maintained project please use the original FileBot project instead.
 
 [FileBot](https://www.filebot.net/)
 
 If you are fine with basic fixes and updates you are on the right place.
+
+But still if you discover an issue, feel free to open an issue. Attach everything you can find, logs, screenshots what you did and what you expected. If I find some time, i will try to fix it.
 
 Functions and design are currently being revised.
 
@@ -17,8 +26,8 @@ I don't want donations, if somebody tells you you need to pay for OpenFileBot, i
 
 ## Releases
 
-![Github All Releases](https://img.shields.io/github/downloads/masterxq/openfilebot/total.svg)
-![Github Releases](https://img.shields.io/github/downloads/masterxq/openfilebot/latest/total.svg)
+[![Github All Releases](https://img.shields.io/github/downloads/masterxq/openfilebot/total.svg)](https://github.com/masterxq/openfilebot/releases)
+[![Github Releases](https://img.shields.io/github/downloads/masterxq/openfilebot/latest/total.svg)](https://github.com/masterxq/openfilebot/releases/latest)
 
 ## Build and Signing
 
@@ -43,14 +52,13 @@ Notes:
 
 ## Screenshots
 
-![OpenFileBot New Design](doc/filebot_new_design.png)
-![Previews with Details](doc/previews_with_details.png)
+![OpenFileBot New Design](docs/filebot_new_design.png)
+![Previews with Details](docs/previews_with_details.png)
 
 ## Pipeline Platform Support
 
 Portable packages:
 
-- Built in CI on Linux (`ubuntu-latest`) and in manual release workflow.
 - Linux `aarch64`: `*-portable-linux-aarch64.tar.gz`
 - Linux `x86_64`: `*-portable-linux-x86_64.tar.gz`
 - Windows `x64`: `*-portable-win64.zip`
