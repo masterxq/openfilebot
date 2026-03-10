@@ -699,7 +699,6 @@
 		</antcall>
 	</target>
 
-
 	<target name="deb-arch">
 		<property name="dir.staging" location="${dir.dist}/deb/${arch}" />
 
@@ -772,20 +771,62 @@
 	</target>
 
 
-	<target name="portable" description="Build portable package" depends="revision">
-		<tar destfile="${dir.dist}/${release}-portable.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
+	<target name="portable" description="Build portable packages" depends="portable-linux, portable-win64" />
+
+
+	<target name="portable-linux" description="Build Linux portable packages" depends="portable-linux-armv7l, portable-linux-aarch64, portable-linux-x86_64" />
+
+
+	<target name="portable-linux-armv7l" description="Build Linux armv7l portable package" depends="revision">
+		<tar destfile="${dir.dist}/${release}-portable-linux-armv7l.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
 			<tarfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
-			<tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
 
-			<!-- include native libraries for supported Linux platforms -->
 			<tarfileset prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" includes="*.so" />
+
+			<!-- include maintainer public key -->
+			<tarfileset dir="${dir.installer}/gpg" includes="maintainer.pub" />
+		</tar>
+	</target>
+
+
+	<target name="portable-linux-aarch64" description="Build Linux aarch64 portable package" depends="revision">
+		<tar destfile="${dir.dist}/${release}-portable-linux-aarch64.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
+			<tarfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
+			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
+
 			<tarfileset prefix="lib/aarch64" dir="${dir.lib}/native/linux-armv8" includes="*.so" />
+
+			<!-- include maintainer public key -->
+			<tarfileset dir="${dir.installer}/gpg" includes="maintainer.pub" />
+		</tar>
+	</target>
+
+
+	<target name="portable-linux-x86_64" description="Build Linux x86_64 portable package" depends="revision">
+		<tar destfile="${dir.dist}/${release}-portable-linux-x86_64.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
+			<tarfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
+			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
+
 			<tarfileset prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
 
 			<!-- include maintainer public key -->
 			<tarfileset dir="${dir.installer}/gpg" includes="maintainer.pub" />
 		</tar>
+	</target>
+
+
+	<target name="portable-win64" description="Build Windows x64 portable package" depends="revision">
+		<zip destfile="${dir.dist}/${release}-portable-win64.zip" encoding="utf-8">
+			<zipfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
+			<zipfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
+
+			<!-- include native libraries for Windows x64 -->
+			<zipfileset dir="${dir.lib}/native/win32-x64" includes="*.dll, *.exe" />
+
+			<!-- include maintainer public key -->
+			<zipfileset dir="${dir.installer}/gpg" includes="maintainer.pub" />
+		</zip>
 	</target>
 
 
@@ -822,7 +863,7 @@
 			<package prefix="lib/armv8" dir="${dir.lib}/native/linux-armv8" includes="*.so" />
 			<package prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
 
-			<codesign secring="${dir.installer}/gpg/secring.gpg" keyid="${gpg.key}" password="${gpg.pwd}" />
+			<!-- SPK signing is handled externally (CI/local keyring), no bundled secret key in repository. -->
 		</spk>
 	</target>
 

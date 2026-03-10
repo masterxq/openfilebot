@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.4
+
+- Split portable artifacts by platform / architecture:
+- Linux `armv7l`: `*-portable-linux-armv7l.tar.xz`
+- Linux `aarch64`: `*-portable-linux-aarch64.tar.xz`
+- Linux `x86_64`: `*-portable-linux-x86_64.tar.xz`
+- Windows `x64`: `*-portable-win64.zip`
+- Updated CI and manual release workflows to publish the new portable artifact set.
+- Added a manual GitHub Actions workflow to refresh Linux native libraries and open an automated pull request (`refresh-native-libs.yml`).
+- Updated portable update signature trust key and maintainer public key material used by installer scripts.
+
 ## 0.9.3
 
 - Migrated the codebase namespace from `net.filebot` to `org.openfilebot` and cleaned up launcher/resource wiring across build and installer configurations.

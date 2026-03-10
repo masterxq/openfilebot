@@ -44,4 +44,4 @@ if [ ! -d "$GPG_HOME" ]; then
 fi
 
 # verify signature and extract jar
-gpg --batch --yes --homedir "$GPG_HOME" --trusted-key "4E402EBF7C3C6A71" --output "$JAR_XZ_FILE" --decrypt "$PACKAGE_FILE" && xz --decompress --force "$JAR_XZ_FILE"
+gpg --batch --yes --homedir "$GPG_HOME" --trusted-key "C0D3530B9A5417B5" --output "$JAR_XZ_FILE" --decrypt "$PACKAGE_FILE" && xz --decompress --force "$JAR_XZ_FILE"
