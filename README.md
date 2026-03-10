@@ -25,6 +25,21 @@ I don't want donations, if somebody tells you you need to pay for OpenFileBot, i
 - Local build (unsigned): see [COMPILING.md](COMPILING.md)
 - Signing setup (local + CI): see [SIGNING.md](SIGNING.md)
 
+## Installation
+
+### Debian / Ubuntu (`.deb`)
+
+Install local release packages with `apt` so dependencies are resolved automatically:
+
+```bash
+sudo apt install ./openfilebot_<version>_<arch>.deb
+```
+
+Notes:
+- Use `./` (or full path) so `apt` treats it as a local file.
+- `apt install ./...deb` resolves and installs missing dependencies from configured repositories.
+- `dpkg -i ...deb` alone does not resolve dependencies automatically.
+
 ## Screenshots
 
 ![OpenFileBot New Design](doc/filebot_new_design.png)
