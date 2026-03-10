@@ -793,8 +793,8 @@
 
 			<tarfileset prefix="lib/aarch64" dir="${dir.lib}/native/linux-armv8" includes="*.so, *.so.*" />
 
-			<!-- include maintainer public key -->
-			<tarfileset dir="${dir.installer}/gpg" includes="maintainer.pub" />
+			<!-- include public key -->
+			<tarfileset dir="${dir.installer}/gpg" includes="openfilebot.pub" />
 		</tar>
 	</target>
 
@@ -807,8 +807,8 @@
 
 			<tarfileset prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so, *.so.*" />
 
-			<!-- include maintainer public key -->
-			<tarfileset dir="${dir.installer}/gpg" includes="maintainer.pub" />
+			<!-- include public key -->
+			<tarfileset dir="${dir.installer}/gpg" includes="openfilebot.pub" />
 		</tar>
 	</target>
 
@@ -821,8 +821,8 @@
 			<!-- include native libraries for Windows x64 -->
 			<zipfileset dir="${dir.lib}/native/win32-x64" includes="*.dll, *.exe" />
 
-			<!-- include maintainer public key -->
-			<zipfileset dir="${dir.installer}/gpg" includes="maintainer.pub" />
+			<!-- include public key -->
+			<zipfileset dir="${dir.installer}/gpg" includes="openfilebot.pub" />
 		</zip>
 	</target>
 
@@ -1159,7 +1159,7 @@
 
 		<!-- merge all filebot related packages into a single package source file -->
 		<package-source file="${dir.dist}/syno/index.json">
-			<keyring file="${dir.installer}/gpg/FileBot.pub" />
+			<keyring file="${dir.installer}/gpg/openfilebot.pub" />
 			<spk file="${dir.release}/${package.name}-${build.version}-noarch.spk">
 				<info name="link" value="https://github.com/masterxq/openfilebot/releases/download/${release}/${package.name}-${build.version}-noarch.spk" />
 				<thumbnail url="https://github.com/masterxq/openfilebot" />

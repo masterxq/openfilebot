@@ -77,10 +77,6 @@ echo "deb [signed-by=/etc/apt/keyrings/openfilebot-archive-keyring.gpg] https://
 	| sudo tee /etc/apt/sources.list.d/openfilebot.list >/dev/null
 ```
 
-Channel policy:
-
-- `stable`: latest 5 regular releases
-- `testing`: latest 5 releases including prereleases
 
 ## Screenshots
 

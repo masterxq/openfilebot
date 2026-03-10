@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.5
+
+- Added debian repository and instructions for usage
+- Added landing web-page
+
 ## 0.9.4
 
 - Split portable artifacts by platform / architecture and standardized naming:

@@ -40,7 +40,7 @@ GPG_HOME="$APP_ROOT/data/.gpg"
 JAR_XZ_FILE="$APP_ROOT/openfilebot.jar.xz"
 
 if [ ! -d "$GPG_HOME" ]; then
-	mkdir -p "$GPG_HOME" && chmod 700 "$GPG_HOME" && gpg --homedir "$GPG_HOME" --import "$APP_ROOT/maintainer.pub"
+	mkdir -p "$GPG_HOME" && chmod 700 "$GPG_HOME" && gpg --homedir "$GPG_HOME" --import "$APP_ROOT/openfilebot.pub"
 fi
 
 # verify signature and extract jar
