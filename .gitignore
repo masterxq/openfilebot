@@ -11,6 +11,8 @@ lib/ivy/
 *.cmd
 *.groovy
 
+!lib/native/build-mediainfo-minimal.sh
+
 *.cer
 *.pfx
 *.pvk
