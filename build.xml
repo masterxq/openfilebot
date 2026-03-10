@@ -774,24 +774,11 @@
 	<target name="portable" description="Build portable packages" depends="portable-linux, portable-win64" />
 
 
-	<target name="portable-linux" description="Build Linux portable packages" depends="portable-linux-armv7l, portable-linux-aarch64, portable-linux-x86_64" />
-
-
-	<target name="portable-linux-armv7l" description="Build Linux armv7l portable package" depends="revision">
-		<tar destfile="${dir.dist}/${release}-portable-linux-armv7l.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
-			<tarfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
-			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
-
-			<tarfileset prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" includes="*.so" />
-
-			<!-- include maintainer public key -->
-			<tarfileset dir="${dir.installer}/gpg" includes="maintainer.pub" />
-		</tar>
-	</target>
+	<target name="portable-linux" description="Build Linux portable packages" depends="portable-linux-aarch64, portable-linux-x86_64" />
 
 
 	<target name="portable-linux-aarch64" description="Build Linux aarch64 portable package" depends="revision">
-		<tar destfile="${dir.dist}/${release}-portable-linux-aarch64.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
+		<tar destfile="${dir.dist}/${release}-portable-linux-aarch64.tar.gz" compression="gzip" longfile="posix" encoding="utf-8">
 			<tarfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
 
@@ -804,7 +791,7 @@
 
 
 	<target name="portable-linux-x86_64" description="Build Linux x86_64 portable package" depends="revision">
-		<tar destfile="${dir.dist}/${release}-portable-linux-x86_64.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
+		<tar destfile="${dir.dist}/${release}-portable-linux-x86_64.tar.gz" compression="gzip" longfile="posix" encoding="utf-8">
 			<tarfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
 
@@ -1090,6 +1077,7 @@
 		<copy todir="${dir.release}" verbose="yes">
 			<fileset dir="${dir.dist}">
 				<include name="*.tar.xz" />
+				<include name="*.tar.gz" />
 				<include name="*.msi" />
 				<include name="*.deb" />
 				<include name="*.spk" />

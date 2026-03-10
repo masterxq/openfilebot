@@ -51,9 +51,8 @@ Notes:
 Portable packages:
 
 - Built in CI on Linux (`ubuntu-latest`) and in manual release workflow.
-- Linux `armv7l`: `*-portable-linux-armv7l.tar.xz`
-- Linux `aarch64`: `*-portable-linux-aarch64.tar.xz`
-- Linux `x86_64`: `*-portable-linux-x86_64.tar.xz`
+- Linux `aarch64`: `*-portable-linux-aarch64.tar.gz`
+- Linux `x86_64`: `*-portable-linux-x86_64.tar.gz`
 - Windows `x64`: `*-portable-win64.zip`
 
 Installer packages (from current pipeline):
