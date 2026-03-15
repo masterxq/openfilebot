@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://masterxq.github.io/openfilebot/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://masterxq.github.io/openfilebot/filebot_new_design.png</image:loc>
+      <image:title>OpenFileBot New Design</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://masterxq.github.io/openfilebot/previews_with_details.png</image:loc>
+      <image:title>OpenFileBot Previews with Details</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://masterxq.github.io/openfilebot/logo.svg</image:loc>
+      <image:title>OpenFileBot Logo</image:title>
+    </image:image>
   </url>
 </urlset>
