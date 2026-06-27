@@ -16,6 +16,26 @@ fi
 # select application data folder
 APP_DATA="$HOME/.openfilebot"
 
+# locate the JNA native dispatch library and pick the matching JNA boot library name.
+# Debian ships it as libjnidispatch.system.so, upstream/other distros use libjnidispatch.so.
+# Probing both keeps the package working across Debian releases and distributions.
+find_jna_name() {
+	for dir in "$APP_ROOT" /usr/lib/*/jni /usr/lib/jni; do
+		if [ -e "$dir/libjnidispatch.so" ]; then
+			echo jnidispatch
+			return 0
+		fi
+	done
+	for dir in "$APP_ROOT" /usr/lib/*/jni /usr/lib/jni; do
+		if [ -e "$dir/libjnidispatch.system.so" ]; then
+			echo jnidispatch.system
+			return 0
+		fi
+	done
+	echo jnidispatch
+}
+JNA_LIB_NAME="$(find_jna_name)"
+
 get_java_major() {
 	java_cmd="$1"
 	version="$($java_cmd -version 2>&1 | sed -n '1s/.* version "\([^"]*\)".*/\1/p')"
@@ -61,4 +81,4 @@ JAVA_BIN="$(pick_java)" || {
 	exit 1
 }
 
-"$JAVA_BIN" -Dunixfs=false -DuseGVFS=true -DuseExtendedFileAttributes=true -DuseCreationDate=false -Djava.net.useSystemProxies=true -Djna.nosys=false -Djna.nounpack=true -Dapplication.deployment=deb -Dorg.openfilebot.gio.GVFS="$XDG_RUNTIME_DIR/gvfs" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" $JAVA_OPTS $OPENFILEBOT_OPTS $FILEBOT_OPTS -jar "$APP_ROOT/openfilebot.jar" "$@"
+"$JAVA_BIN" -Dunixfs=false -DuseGVFS=true -DuseExtendedFileAttributes=true -DuseCreationDate=false -Djava.net.useSystemProxies=true -Djna.nosys=false -Djna.nounpack=true -Djna.boot.library.name="$JNA_LIB_NAME" -Dapplication.deployment=deb -Dorg.openfilebot.gio.GVFS="$XDG_RUNTIME_DIR/gvfs" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" $JAVA_OPTS $OPENFILEBOT_OPTS $FILEBOT_OPTS -jar "$APP_ROOT/openfilebot.jar" "$@"

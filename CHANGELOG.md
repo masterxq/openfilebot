@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.6
+
+- Fixed media scanning on current Debian/Ubuntu: detect the JNA native library under both `libjnidispatch.so` and Debian's `libjnidispatch.system.so` so `libmediainfo` loads again.
+- Fixed `Failed to read media encoding date` with newer libmediainfo (v26+) by parsing the ISO-8601 `Encoded_Date` format in addition to the legacy format.
+
 ## 0.9.5
 
 - Added debian repository and instructions for usage

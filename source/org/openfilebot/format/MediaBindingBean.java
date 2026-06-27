@@ -38,6 +38,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -1026,11 +1027,19 @@ public class MediaBindingBean {
 		return String.format("%.1f", getFileSize() / 1e9);
 	}
 
+	// MediaInfo emits Encoded_Date in different layouts depending on the library version,
+	// e.g. "UTC 2008-01-08 19:54:39" (old) or "2018-07-25T09:56:57Z UTC" / "2018-07-25 09:56:57 UTC" (new).
+	// All variants contain a single ISO calendar date which is all SimpleDate needs.
+	private static final Pattern ENCODED_DATE = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})");
+
 	@Define("encodedDate")
 	public SimpleDate getEncodedDate() {
-		String date = getMediaInfo(StreamKind.General, 0, "Encoded_Date"); // e.g. UTC 2008-01-08 19:54:39
-		ZonedDateTime time = ZonedDateTime.parse(date, DateTimeFormatter.ofPattern("zzz uuuu-MM-dd HH:mm:ss"));
-		return new SimpleDate(time);
+		String date = getMediaInfo(StreamKind.General, 0, "Encoded_Date");
+		Matcher m = ENCODED_DATE.matcher(date);
+		if (!m.find()) {
+			throw new IllegalArgumentException("Unsupported encoding date: " + date);
+		}
+		return new SimpleDate(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)));
 	}
 
 	@Define("today")
