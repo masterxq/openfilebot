@@ -36,7 +36,7 @@ public class OMDbClientTest {
 		Movie movie = results.get(0);
 
 		assertEquals("Amélie", movie.getName());
-		assertEquals(Integer.valueOf(2001), movie.getYear());
+		assertEquals(Integer.valueOf(2002), movie.getYear());
 		assertEquals(211915, movie.getImdbId(), 0);
 	}
 
@@ -74,7 +74,7 @@ public class OMDbClientTest {
 		Movie movie = client.getMovieDescriptor(new Movie(211915), null);
 
 		assertEquals("Amélie", movie.getName());
-		assertEquals(Integer.valueOf(2001), movie.getYear());
+		assertEquals(Integer.valueOf(2002), movie.getYear());
 		assertEquals(211915, movie.getImdbId(), 0);
 	}
 

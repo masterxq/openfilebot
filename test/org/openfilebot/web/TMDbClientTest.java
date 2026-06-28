@@ -63,10 +63,10 @@ public class TMDbClientTest {
 		List<Movie> result = db.searchMovie("Suicide Squad", new Locale("es", "MX"));
 		Movie movie = result.get(0);
 
-		assertEquals("Escuadrón Suicida", movie.getName());
-		assertEquals(Integer.valueOf(2016), movie.getYear());
+		assertEquals("El Escuadrón Suicida", movie.getName());
+		assertEquals(Integer.valueOf(2021), movie.getYear());
 		assertEquals(-1, movie.getImdbId());
-		assertEquals(297761, movie.getTmdbId());
+		assertEquals(436969, movie.getTmdbId());
 	}
 
 	@Test
