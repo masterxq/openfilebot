@@ -59,6 +59,11 @@ public class SelectDialog<T> extends JDialog {
 
 	private static final int MAX_ALIAS_LINES = 3;
 
+	// Serializes "only one select dialog at a time" across the parallel matcher worker threads.
+	// Matchers must lock on THIS instead of the parent window: the EDT needs the parent window's
+	// monitor while showing the modal dialog, so locking the parent across invokeAndWait deadlocks.
+	public static final Object SELECT_DIALOG_LOCK = new Object();
+
 	private JLabel messageLabel = new JLabel();
 	private JCheckBox autoRepeatCheckBox = new JCheckBox();
 	private JLabel artworkLabel = new JLabel();

@@ -389,28 +389,46 @@ class MovieMatcher implements AutoCompleteMatcher {
 			return selectDialog.getSelectedValue();
 		});
 
-		// allow only one select dialog at a time
+		String selectionKey = fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery;
+
+		// fast path: reuse an earlier decision / honor auto-selection settings
 		synchronized (selectionMemory) {
-			String selectionKey = fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery;
 			if (selectionMemory.containsKey(selectionKey)) {
 				return selectionMemory.get(selectionKey);
 			}
-
-			// check auto-selection settings
 			if (autoSelectionMode.contains(AutoSelection.First)) {
 				return options.iterator().next();
 			}
 			if (autoSelectionMode.contains(AutoSelection.Skip)) {
 				return null;
 			}
+		}
 
-			synchronized (parent) {
-				SwingUtilities.invokeAndWait(showSelectDialog);
-
-				// cache selected value
-				selectionMemory.put(selectionKey, showSelectDialog.get());
-				return showSelectDialog.get();
+		// allow only one select dialog at a time - lock a dedicated object, never the parent component:
+		// the EDT needs the parent window monitor while showing the modal dialog, so locking the parent
+		// across invokeAndWait deadlocks the EDT against this worker thread (confirmed via thread dump).
+		synchronized (SelectDialog.SELECT_DIALOG_LOCK) {
+			// another thread may have resolved the same query while we waited for the dialog lock
+			synchronized (selectionMemory) {
+				if (selectionMemory.containsKey(selectionKey)) {
+					return selectionMemory.get(selectionKey);
+				}
+				if (autoSelectionMode.contains(AutoSelection.First)) {
+					return options.iterator().next();
+				}
+				if (autoSelectionMode.contains(AutoSelection.Skip)) {
+					return null;
+				}
 			}
+
+			SwingUtilities.invokeAndWait(showSelectDialog);
+			Movie userSelection = showSelectDialog.get();
+
+			// cache selected value
+			synchronized (selectionMemory) {
+				selectionMemory.put(selectionKey, userSelection);
+			}
+			return userSelection;
 		}
 	}
 

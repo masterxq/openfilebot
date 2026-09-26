@@ -161,7 +161,9 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			synchronized (inputMemory) {
 				List<String> input = inputMemory.get(suggestion);
 				if (input == null || suggestion == null || suggestion.isEmpty()) {
-					synchronized (parent) {
+					// one dialog at a time - lock a dedicated object, never the parent component (the EDT
+					// needs the parent window monitor while showing the modal dialog -> deadlock otherwise)
+					synchronized (SelectDialog.SELECT_DIALOG_LOCK) {
 						input = showMultiValueInputDialog(getQueryInputMessage("Please identify the following files:", "Enter series name:", files), suggestion, provider.getName(), parent);
 					}
 					inputMemory.put(suggestion, input);
@@ -266,28 +268,40 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			return selectDialog.getSelectedValue();
 		});
 
+		// fast path: reuse an earlier decision for this query
 		synchronized (selectionMemory) {
 			if (selectionMemory.containsKey(query)) {
 				return selectionMemory.get(query);
 			}
+		}
 
-			// check persistent memory
-			if (autodetection) {
-				SearchResult persistentSelection = getPersistentSelectionMemory().get(query);
-				if (persistentSelection != null) {
-					return persistentSelection;
+		// check persistent memory
+		if (autodetection) {
+			SearchResult persistentSelection = getPersistentSelectionMemory().get(query);
+			if (persistentSelection != null) {
+				return persistentSelection;
+			}
+		}
+
+		// allow only one select dialog at a time - lock a dedicated object, never the parent component:
+		// the EDT needs the parent window monitor while showing the modal dialog, so locking the parent
+		// across invokeAndWait deadlocks the EDT against this worker thread (confirmed via thread dump).
+		synchronized (SelectDialog.SELECT_DIALOG_LOCK) {
+			// another thread may have resolved the same query while we waited for the dialog lock
+			synchronized (selectionMemory) {
+				if (selectionMemory.containsKey(query)) {
+					return selectionMemory.get(query);
 				}
 			}
 
-			// allow only one select dialog at a time
-			synchronized (parent) {
-				SwingUtilities.invokeAndWait(showSelectDialog);
-				SearchResult userSelection = showSelectDialog.get();
+			SwingUtilities.invokeAndWait(showSelectDialog);
+			SearchResult userSelection = showSelectDialog.get();
 
-				// remember selected value
+			// remember selected value
+			synchronized (selectionMemory) {
 				selectionMemory.put(query, userSelection);
-				return userSelection;
 			}
+			return userSelection;
 		}
 	}
 
