@@ -57,8 +57,8 @@ public final class WebServices {
 	public static final TVMazeClient TVmaze = new TVMazeClient();
 	public static final AnidbClient AniDB = new AnidbClientWithLocalSearch(getApiKey("anidb"), 6);
 
-	// extended TheTVDB module with local search
-	public static final TheTVDBClientWithLocalSearch TheTVDB = new TheTVDBClientWithLocalSearch(getApiKey("thetvdb"));
+	// TheTVDB API v4 (subscriber PIN is only required for user-supported project keys)
+	public static final TheTVDBClient TheTVDB = new TheTVDBClient(getApiKey("thetvdb"), SystemProperty.of("org.openfilebot.WebServices.TheTVDB.pin", "net.filebot.WebServices.TheTVDB.pin", String::valueOf, null).get());
 	public static final TMDbTVClient TheMovieDB_TV = new TMDbTVClient(TheMovieDB);
 
 	// subtitle sources
@@ -172,37 +172,6 @@ public final class WebServices {
 				debug.log(Level.WARNING, "Failed to load local TMDb index", e);
 				return emptyList();
 			}
-		}
-	}
-
-	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
-
-		public TheTVDBClientWithLocalSearch(String apikey) {
-			super(apikey);
-		}
-
-		// local TheTVDB search index
-		private final Resource<LocalSearch<SearchResult>> localIndex = Resource.lazy(() -> new LocalSearch<SearchResult>(releaseInfo.getTheTVDBIndex(), SearchResult::getEffectiveNames));
-
-		private SearchResult merge(SearchResult prime, List<SearchResult> group) {
-			int id = prime.getId();
-			String name = prime.getName();
-			Integer year = group.stream().map(SearchResult::getYear).filter(y -> y != null && y > 0).findFirst().orElse(prime.getYear());
-
-			String[] aliasNames = group.stream().flatMap(it -> stream(it.getAliasNames())).filter(n -> !n.equals(name)).distinct().toArray(String[]::new);
-			return new SearchResult(id, name, aliasNames, year);
-		}
-
-		@Override
-		public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
-			// run local search and API search in parallel
-			Future<List<SearchResult>> apiSearch = requestThreadPool.submit(() -> TheTVDBClientWithLocalSearch.super.fetchSearchResult(query, locale));
-			Future<List<SearchResult>> localSearch = requestThreadPool.submit(() -> localIndex.get().search(query));
-
-			// combine alias names into a single search results, and keep API search name as primary name
-			Map<Integer, SearchResult> results = Stream.of(apiSearch.get(), localSearch.get()).flatMap(List::stream).collect(groupingBy(SearchResult::getId, LinkedHashMap::new, collectingAndThen(toList(), group -> merge(group.get(0), group))));
-
-			return sortBySimilarity(results.values(), singleton(query), getSeriesMatchMetric());
 		}
 	}
 

@@ -641,7 +641,7 @@ public class MediaBindingBean {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getActors();
 		if (infoObject instanceof Episode)
-			return ExpressionFormatMethods.getActors(getSeriesInfo()); // use TheTVDB API v2 to retrieve actors info
+			return ExpressionFormatMethods.getActors(getSeriesInfo()); // use TheTVDB API v4 to retrieve actors info
 
 		return null;
 	}
@@ -668,7 +668,7 @@ public class MediaBindingBean {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getDirector();
 		if (infoObject instanceof Episode)
-			return ExpressionFormatMethods.getInfo(getEpisode()).getDirector(); // use TheTVDB API v2 to retrieve extended episode info
+			return ExpressionFormatMethods.getInfo(getEpisode()).getDirector(); // use TheTVDB API v4 to retrieve extended episode info
 
 		return null;
 	}

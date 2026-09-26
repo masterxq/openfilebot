@@ -158,11 +158,18 @@ public class MainFrame extends JFrame {
 			}
 		});
 
+		// TheTVDB API license requires attribution with a direct link to TheTVDB.com
+		JMenuItem thetvdbAttributionItem = new JMenuItem("Metadata provided by TheTVDB.com", ResourceManager.getIcon("search.thetvdb"));
+		thetvdbAttributionItem.setToolTipText("TV series metadata is provided by TheTVDB.com. Please consider contributing to the community.");
+		thetvdbAttributionItem.addActionListener(evt -> openURI("https://thetvdb.com/"));
+
 		globalSettingsMenu.add(formatItem);
 		globalSettingsMenu.add(preferencesItem);
 		globalSettingsMenu.add(preserveExtensionsItem);
 		globalSettingsMenu.addSeparator();
 		globalSettingsMenu.add(darkThemeItem);
+		globalSettingsMenu.addSeparator();
+		globalSettingsMenu.add(thetvdbAttributionItem);
 		final long[] lastMenuCloseAt = new long[] { 0L };
 
 		globalSettingsMenu.addPopupMenuListener(new PopupMenuListener() {

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.7
+
+- Migrated TheTVDB integration to API v4 (`api4.thetvdb.com`). The legacy v2 search endpoint stopped returning results, which left TheTVDB searches empty in the GUI without any error.
+- TheTVDB search, series info, episode lists (aired / DVD / absolute order), artwork, actors and extended episode info now use v4 records with embedded translations.
+- HTTP errors from TheTVDB are no longer silently cached as empty results; an outage is now reported as an error instead of an empty list.
+- Removed the (empty) bundled local TheTVDB series index; the data source is queried directly.
+- Added "Metadata provided by TheTVDB.com" attribution to the settings menu as required by the TheTVDB API license.
+- Optional subscriber PIN for user-supported project keys via `-Dorg.openfilebot.WebServices.TheTVDB.pin=...`.
+- Fixed a deadlock between the UI thread and the matcher worker threads when the series or movie selection dialog is shown for several files at once.
+
 ## 0.9.6
 
 - Fixed media scanning on current Debian/Ubuntu: detect the JNA native library under both `libjnidispatch.so` and Debian's `libjnidispatch.system.so` so `libmediainfo` loads again.
