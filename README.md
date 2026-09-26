@@ -87,9 +87,9 @@ echo "deb [signed-by=/etc/apt/keyrings/openfilebot-archive-keyring.gpg] https://
 
 Portable packages:
 
-- Linux `aarch64`: `*-portable-linux-aarch64.tar.gz`
-- Linux `x86_64`: `*-portable-linux-x86_64.tar.gz`
-- Windows `x64`: `*-portable-win64.zip`
+- Linux `aarch64`: `*-portable-linux-aarch64.tar.gz` (requires an installed Java 21 runtime)
+- Linux `x86_64`: `*-portable-linux-x86_64.tar.gz` (requires an installed Java 21 runtime)
+- Windows `x64`: `*-portable-win64.zip` (jpackage app-image with bundled Java runtime, no Java installation required; extract and run `OpenFileBot.exe`, all settings and caches are kept in the `data` folder next to it)
 
 Installer packages (from current pipeline):
 

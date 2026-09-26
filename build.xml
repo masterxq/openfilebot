@@ -779,7 +779,8 @@
 	</target>
 
 
-	<target name="portable" description="Build portable packages" depends="portable-linux, portable-win64" />
+	<!-- the Windows portable package is a jpackage app-image with a bundled runtime, built by the manual release workflow -->
+	<target name="portable" description="Build portable packages" depends="portable-linux" />
 
 
 	<target name="portable-linux" description="Build Linux portable packages" depends="portable-linux-aarch64, portable-linux-x86_64" />
@@ -810,20 +811,6 @@
 			<!-- include public key -->
 			<tarfileset dir="${dir.installer}/gpg" includes="openfilebot.pub" />
 		</tar>
-	</target>
-
-
-	<target name="portable-win64" description="Build Windows x64 portable package" depends="revision">
-		<zip destfile="${dir.dist}/${release}-portable-win64.zip" encoding="utf-8">
-			<zipfileset file="${path.fatjar}" fullpath="openfilebot.jar" />
-			<zipfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
-
-			<!-- include native libraries for Windows x64 -->
-			<zipfileset dir="${dir.lib}/native/win32-x64" includes="*.dll, *.exe" />
-
-			<!-- include public key -->
-			<zipfileset dir="${dir.installer}/gpg" includes="openfilebot.pub" />
-		</zip>
 	</target>
 
 

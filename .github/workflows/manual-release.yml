@@ -164,19 +164,9 @@ jobs:
           )
           & ant @antArgs
 
-      - name: Build MSI with jpackage
+      - name: Prepare jpackage input
         shell: pwsh
         run: |
-          $wixPaths = @(
-            "C:\Program Files (x86)\WiX Toolset v3.14\bin",
-            "C:\Program Files (x86)\WiX Toolset v3.11\bin"
-          )
-          foreach ($p in $wixPaths) {
-            if (Test-Path $p) {
-              "$p" >> $env:GITHUB_PATH
-            }
-          }
-
           $inputDir = "dist/jpackage-input"
           New-Item -ItemType Directory -Path $inputDir -Force | Out-Null
 
@@ -191,6 +181,70 @@ jobs:
           Copy-Item "lib/native/win32-x64/fpcalc.exe" $inputDir -Force
           Copy-Item "lib/native/win32-x64/jnidispatch.dll" $inputDir -Force
           Copy-Item "lib/native/win32-x64/7-Zip-JBinding.dll" $inputDir -Force
+
+      - name: Build portable app-image with jpackage
+        shell: pwsh
+        run: |
+          # Portable package: bundled Java runtime, all data is kept in the "data" folder next to OpenFileBot.exe
+          $jpackageArgs = @(
+            '--type', 'app-image',
+            '--name', 'OpenFileBot',
+            '--dest', 'dist/app-image',
+            '--input', 'dist/jpackage-input',
+            '--main-jar', 'openfilebot.jar',
+            '--main-class', 'org.openfilebot.Main',
+            '--icon', 'installer/icons/shortcut.ico',
+            '--app-version', $env:RELEASE_VERSION,
+            '--vendor', 'MasterxQ',
+            '--description', 'OpenFileBot media renamer (portable)',
+            '--java-options', '-Dapplication.deployment=portable',
+            '--java-options', '-Dapplication.dir=$APPDIR\\..\\data',
+            '--java-options', '-Duser.home=$APPDIR\\..\\data',
+            '--java-options', '-Djava.io.tmpdir=$APPDIR\\..\\data\\tmp',
+            '--java-options', '-Djava.util.prefs.PreferencesFactory=org.openfilebot.util.prefs.FilePreferencesFactory',
+            '--java-options', '-Dorg.openfilebot.util.prefs.file=$APPDIR\\..\\data\\prefs.properties',
+            '--java-options', '-Djava.net.useSystemProxies=false',
+            '--java-options', '-DuseNativeShell=false',
+            '--java-options', '-DuseExtendedFileAttributes=true',
+            '--java-options', '-DuseCreationDate=false',
+            '--java-options', '-Dorg.openfilebot.AcoustID.fpcalc=$APPDIR\\fpcalc.exe',
+            '--java-options', '-Djna.library.path=$APPDIR',
+            '--java-options', '-Djna.boot.library.path=$APPDIR',
+            '--java-options', '-Djava.library.path=$APPDIR',
+            '--java-options', '-Djna.nosys=true',
+            '--java-options', '-Djna.nounpack=true',
+            '--java-options', '-Djava.util.logging.config.file=$APPDIR\\logging.properties'
+          )
+
+          & jpackage @jpackageArgs
+          if ($LASTEXITCODE -ne 0) { throw "jpackage app-image failed with exit code $LASTEXITCODE" }
+
+          $imageDir = "dist/app-image/OpenFileBot"
+          if (-not (Test-Path "$imageDir/OpenFileBot.exe")) {
+            throw "App image launcher not found in $imageDir"
+          }
+
+          Copy-Item "installer/gpg/openfilebot.pub" $imageDir -Force
+          New-Item -ItemType Directory -Path "$imageDir/data" -Force | Out-Null
+
+          $zip = "dist/openfilebot_$env:RELEASE_VERSION-portable-win64.zip"
+          Compress-Archive -Path "$imageDir/*" -DestinationPath $zip -CompressionLevel Optimal -Force
+          Get-Item $zip | Format-List Name, Length
+
+      - name: Build MSI with jpackage
+        shell: pwsh
+        run: |
+          $wixPaths = @(
+            "C:\Program Files (x86)\WiX Toolset v3.14\bin",
+            "C:\Program Files (x86)\WiX Toolset v3.11\bin"
+          )
+          foreach ($p in $wixPaths) {
+            if (Test-Path $p) {
+              "$p" >> $env:GITHUB_PATH
+            }
+          }
+
+          $inputDir = "dist/jpackage-input"
 
           $jpackageArgs = @(
             '--type', 'msi',
@@ -230,8 +284,9 @@ jobs:
           if-no-files-found: error
           path: |
             dist/*.msi
+            dist/*-portable-win64.zip
 
-      - name: Publish MSI to GitHub Release
+      - name: Publish MSI and portable package to GitHub Release
         if: inputs.publish_release
         uses: softprops/action-gh-release@v2
         with:
@@ -239,6 +294,7 @@ jobs:
           prerelease: ${{ inputs.prerelease }}
           files: |
             dist/*.msi
+            dist/*-portable-win64.zip
 
   release-signatures:
     runs-on: ubuntu-latest
@@ -251,6 +307,29 @@ jobs:
         with:
           name: openfilebot-release-${{ inputs.tag }}
           path: release-artifacts
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: openfilebot-windows-installer-${{ inputs.tag }}
+          path: release-artifacts/windows
+
+      - name: Import GPG signing key
+        env:
+          RELEASE_GPG_PRIVATE_KEY_B64: ${{ secrets.RELEASE_GPG_PRIVATE_KEY_B64 }}
+        run: |
+          echo "$RELEASE_GPG_PRIVATE_KEY_B64" | base64 --decode | gpg --batch --import
+
+      - name: Sign Windows artifacts
+        env:
+          RELEASE_GPG_KEY_ID: ${{ secrets.RELEASE_GPG_KEY_ID }}
+          RELEASE_GPG_PASSPHRASE: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+        run: |
+          for f in release-artifacts/windows/*.msi release-artifacts/windows/*-portable-win64.zip; do
+            [ -f "$f" ] || continue
+            gpg --batch --yes --pinentry-mode loopback --passphrase "$RELEASE_GPG_PASSPHRASE" \
+              --local-user "$RELEASE_GPG_KEY_ID" --armor --detach-sign "$f"
+          done
 
       - name: Publish signatures to GitHub Release
         uses: softprops/action-gh-release@v2

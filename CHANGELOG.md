@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.8
+
+- Windows portable package is now a jpackage app-image with a bundled Java runtime (`OpenFileBot.exe`, no Java installation required). Settings, cache and temp files stay in the `data` folder next to the executable. (#5)
+- Fixed the Windows portable package shipping Linux JavaFX libraries; it is now built on the Windows runner with the Windows JavaFX artifacts. (#5)
+- Removed the Launch4j launcher, which failed to detect current Java runtimes (`This application requires a Java Runtime Environment 1.8.0`). (#5)
+- Windows MSI and portable package are now GPG-signed like the other release artifacts.
+
 ## 0.9.7
 
 - Migrated TheTVDB integration to API v4 (`api4.thetvdb.com`). The legacy v2 search endpoint stopped returning results, which left TheTVDB searches empty in the GUI without any error.
